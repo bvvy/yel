@@ -29,7 +29,7 @@ public class TestExpressionParser {
     @Test
     public void testDecimalLiteral() {
         Node node = parse("1.0");
-        Assertions.assertEquals(node.getClass(), FloatLiteral.class);
+        Assertions.assertEquals(node.getClass(), RealLiteral.class);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class TestExpressionParser {
     public void testIndex() {
 
         Node node = parse("a[1]");
-        Assertions.assertEquals(Indexer.class, node.getClass());
+        Assertions.assertEquals(CompoundExpression.class, node.getClass());
 
     }
 
