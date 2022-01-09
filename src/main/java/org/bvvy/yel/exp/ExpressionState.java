@@ -46,4 +46,8 @@ public class ExpressionState {
     public void popActiveContextObject() {
         this.contextObject.pop();
     }
+
+    public TypedValue getRootContextObject() {
+        return rootObject;
+    }
 }

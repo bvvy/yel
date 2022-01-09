@@ -4,7 +4,10 @@ import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.exp.ValueRef;
+import org.bvvy.yel.util.NumberUtils;
 
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Map;
 
 public class Indexer extends NodeImpl {
@@ -21,15 +24,100 @@ public class Indexer extends NodeImpl {
     public ValueRef getValueRef(ExpressionState state) {
         TypedValue context = state.getActiveContextObject();
         Object target = context.getValue();
+        TypedValue indexValue;
+        Object index;
         if (target == null) {
             throw new YelEvaluationException();
         }
 
-        if (target instanceof Map) {
+        state.pushActiveContextObject(state.getRootContextObject());
+        indexValue = this.children[0].getValueInternal(state);
+        index = indexValue.getValue();
+        state.popActiveContextObject();
 
+        // ------------------------ Map index -----------------------
+        if (target instanceof Map) {
+            Object key = index;
+            return new MapIndexingValueRef(((Map<?, ?>) target), key);
+        }
+        // ------------------------ Collection index -----------------------
+        if (target.getClass().isArray() || target instanceof Collection) {
+            int idx = NumberUtils.convertNumberToTargetClass((Number) index, Integer.class);
+            if (target.getClass().isArray()) {
+                return new ArrayIndexingValueRef(target, idx);
+            } else if (target instanceof Collection) {
+                return new CollectionIndexingValueRef((Collection<?>) target, idx);
+            }
         }
         return null;
     }
 
+    private class MapIndexingValueRef implements ValueRef {
 
+        private Map map;
+        private Object key;
+
+        public MapIndexingValueRef(Map map, Object key) {
+            this.map = map;
+            this.key = key;
+        }
+
+        @Override
+        public TypedValue getValue() {
+            Object value = this.map.get(this.key);
+            return new TypedValue(value);
+        }
+
+    }
+
+
+
+    private class ArrayIndexingValueRef implements ValueRef {
+        private Object array;
+        private int index;
+
+        @Override
+        public TypedValue getValue() {
+//            Object arrayElement = accessArrayElement(this.array, this.index);
+            Object arrayElement = ((Object[]) array)[index];
+            return new TypedValue(arrayElement);
+        }
+
+        public ArrayIndexingValueRef(Object array, int index) {
+            this.array = array;
+            this.index = index;
+        }
+    }
+
+    private Object accessArrayElement(Object ctx, int idx) {
+        Class<?> arrayComponentType = ctx.getClass().getComponentType();
+        if (arrayComponentType == Boolean.TYPE) {
+            boolean[] array = (boolean[]) ctx;
+            checkAccess(array.length, idx);
+            return array[idx];
+        } else if (arrayComponentType == Byte.TYPE) {
+            byte[] array = (byte[]) ctx;
+            checkAccess(array.length, idx);
+            return array[idx];
+        }
+
+        return null;
+    }
+
+    private void checkAccess(int length, int index) {
+        if (index >= length) {
+            throw new YelEvaluationException();
+        }
+
+    }
+
+    private class CollectionIndexingValueRef implements ValueRef {
+        public CollectionIndexingValueRef(Collection<?> target, int idx) {
+        }
+
+        @Override
+        public TypedValue getValue() {
+            return null;
+        }
+    }
 }
