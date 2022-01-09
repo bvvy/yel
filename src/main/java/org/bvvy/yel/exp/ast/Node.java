@@ -2,6 +2,7 @@ package org.bvvy.yel.exp.ast;
 
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypedValue;
+import org.bvvy.yel.exp.ValueRef;
 
 public interface Node {
 
@@ -14,4 +15,6 @@ public interface Node {
     }
 
     TypedValue getValueInternal(ExpressionState state);
+
+    ValueRef getValueRef(ExpressionState state);
 }

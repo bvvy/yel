@@ -3,6 +3,7 @@ package org.bvvy.yel.exp;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.exception.YelEvaluationException;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
@@ -30,8 +31,19 @@ public class ExpressionState {
 
     public TypedValue getActiveContextObject() {
         if (contextObject == null || contextObject.size() == 0) {
-            return  this.rootObject;
+            return this.rootObject;
         }
         return contextObject.element();
+    }
+
+    public void pushActiveContextObject(TypedValue result) {
+        if (this.contextObject == null) {
+            this.contextObject = new ArrayDeque<>();
+        }
+        this.contextObject.push(result);
+    }
+
+    public void popActiveContextObject() {
+        this.contextObject.pop();
     }
 }
