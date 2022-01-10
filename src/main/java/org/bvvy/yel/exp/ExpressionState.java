@@ -50,4 +50,8 @@ public class ExpressionState {
     public TypedValue getRootContextObject() {
         return rootObject;
     }
+
+    public ValueRef index(Object index) {
+        throw new YelEvaluationException();
+    }
 }

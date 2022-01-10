@@ -6,8 +6,8 @@ import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.exp.ValueRef;
 import org.bvvy.yel.util.NumberUtils;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class Indexer extends NodeImpl {
@@ -45,19 +45,19 @@ public class Indexer extends NodeImpl {
             int idx = NumberUtils.convertNumberToTargetClass((Number) index, Integer.class);
             if (target.getClass().isArray()) {
                 return new ArrayIndexingValueRef(target, idx);
-            } else if (target instanceof Collection) {
+            } else {
                 return new CollectionIndexingValueRef((Collection<?>) target, idx);
             }
         }
-        return null;
+        return state.index(index);
     }
 
     private class MapIndexingValueRef implements ValueRef {
 
-        private Map map;
-        private Object key;
+        private final Map<?, ?> map;
+        private final Object key;
 
-        public MapIndexingValueRef(Map map, Object key) {
+        public MapIndexingValueRef(Map<?, ?> map, Object key) {
             this.map = map;
             this.key = key;
         }
@@ -71,10 +71,9 @@ public class Indexer extends NodeImpl {
     }
 
 
-
     private class ArrayIndexingValueRef implements ValueRef {
-        private Object array;
-        private int index;
+        private final Object array;
+        private final int index;
 
         @Override
         public TypedValue getValue() {
@@ -112,12 +111,22 @@ public class Indexer extends NodeImpl {
     }
 
     private class CollectionIndexingValueRef implements ValueRef {
-        public CollectionIndexingValueRef(Collection<?> target, int idx) {
+        private final Collection<?> collection;
+        private final int index;
+
+        public CollectionIndexingValueRef(Collection<?> collection, int index) {
+            this.collection = collection;
+            this.index = index;
         }
 
         @Override
         public TypedValue getValue() {
-            return null;
+            if (this.collection instanceof List) {
+                Object o = ((List<?>) this.collection).get(index);
+                return new TypedValue(o);
+            }
+            throw new IllegalStateException("index fail");
         }
+
     }
 }

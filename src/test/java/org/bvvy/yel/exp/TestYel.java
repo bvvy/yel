@@ -4,6 +4,7 @@ import org.bvvy.yel.Yel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,5 +41,14 @@ public class TestYel {
         env.put("a", 100);
         Object result = yel.eval("a", env);
         Assertions.assertEquals(100, result);
+    }
+
+    @Test
+    public void testIndexer() {
+        Yel yel = new Yel();
+        Map<String, Object> env = new HashMap<>();
+        env.put("a", Arrays.asList(100, 200));
+        Object result = yel.eval("a[1]", env);
+        Assertions.assertEquals(200, result);
     }
 }
