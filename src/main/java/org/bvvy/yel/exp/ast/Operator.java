@@ -1,5 +1,6 @@
 package org.bvvy.yel.exp.ast;
 
+import org.bvvy.yel.context.Context;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypedValue;
 
@@ -23,5 +24,9 @@ public class Operator extends NodeImpl {
     @Override
     public TypedValue getValueInternal(ExpressionState state) {
         return null;
+    }
+
+    public boolean equalityCheck(Context context, Object left, Object right) {
+        return false;
     }
 }
