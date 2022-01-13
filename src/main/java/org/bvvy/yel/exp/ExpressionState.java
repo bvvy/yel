@@ -1,6 +1,7 @@
 package org.bvvy.yel.exp;
 
 import org.bvvy.yel.context.Context;
+import org.bvvy.yel.context.TypeComparator;
 import org.bvvy.yel.exception.YelEvaluationException;
 
 import java.util.ArrayDeque;
@@ -53,5 +54,9 @@ public class ExpressionState {
 
     public ValueRef index(Object index) {
         throw new YelEvaluationException();
+    }
+
+    public TypeComparator getTypeComparator() {
+        return context.getTypeComparator();
     }
 }

@@ -11,6 +11,8 @@ public class Context {
 
     private List<PropertyAccessor> propertyAccessors;
 
+    private TypeComparator typeComparator = new StandardTypeComparator();
+
     public Context(Object rootObject) {
         this.rootObject = new TypedValue(rootObject);
         this.propertyAccessors = new ArrayList<>();
@@ -23,5 +25,9 @@ public class Context {
 
     public TypedValue getRootObject() {
         return this.rootObject;
+    }
+
+    public TypeComparator getTypeComparator() {
+        return typeComparator;
     }
 }

@@ -13,8 +13,7 @@ public class OpEQ extends Operator {
     public TypedValue getValueInternal(ExpressionState state) {
         Object left = getLeftOperand().getValueInternal(state).getValue();
         Object right = getRightOperand().getValueInternal(state).getValue();
-        return BooleanTypeValue.of(equalityCheck(state.getContext(), left, right));
+        return BooleanTypeValue.of(state.getTypeComparator().compare(left, right) == 0);
     }
-
 
 }
