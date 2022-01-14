@@ -1,6 +1,9 @@
 package org.bvvy.yel.exp.ast;
 
 import org.bvvy.yel.context.Context;
+import org.bvvy.yel.context.MethodExecutor;
+import org.bvvy.yel.context.MethodResolver;
+import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypeDescriptor;
 import org.bvvy.yel.exp.TypedValue;
@@ -11,6 +14,7 @@ import java.util.List;
 public class MethodReference extends NodeImpl {
     private final String name;
     private final boolean nullSafe;
+    private MethodExecutor cachedExecutor;
 
     public MethodReference(boolean nullSafe, String methodName, int startPos, int endPos, Node ... arguments) {
         super(startPos, endPos, arguments);
@@ -25,7 +29,7 @@ public class MethodReference extends NodeImpl {
         TypeDescriptor targetType = state.getActiveContextObject().getTypeDescriptor();
         Object[] arguments = getArguments(state);
         TypedValue result = getValueInternal(context, value, targetType, arguments);
-        return null;
+        return result;
     }
 
     private TypedValue getValueInternal(Context context, Object value, TypeDescriptor targetType, Object[] arguments) {
@@ -33,7 +37,27 @@ public class MethodReference extends NodeImpl {
         if (value == null) {
             return TypedValue.NULL;
         }
+        MethodExecutor executorToUse = getCachedExecutor(context, value, targetType, arguments);
+        if (executorToUse != null) {
+            return executorToUse.execute(context, value, arguments);
+        }
+        executorToUse = findAccessorForMethod(argumentTypes, value, context);
+        this.cachedExecutor = executorToUse;
+        return executorToUse.execute(context, value, arguments);
+    }
 
+    private MethodExecutor findAccessorForMethod(List<TypeDescriptor> argumentTypes, Object targetObject, Context context) {
+        List<MethodResolver> methodResolvers = context.getMethodResolvers();
+        for (MethodResolver methodResolver : methodResolvers) {
+            MethodExecutor methodExecutor = methodResolver.resolve(context, targetObject, this.name, argumentTypes);
+            if (methodExecutor != null) {
+                return methodExecutor;
+            }
+        }
+        throw new YelEvaluationException();
+    }
+
+    private MethodExecutor getCachedExecutor(Context context, Object value, TypeDescriptor targetType, Object[] arguments) {
         return null;
     }
 

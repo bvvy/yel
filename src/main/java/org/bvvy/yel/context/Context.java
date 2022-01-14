@@ -13,6 +13,8 @@ public class Context {
 
     private TypeComparator typeComparator = new StandardTypeComparator();
 
+    private List<MethodResolver> methodResolvers;
+
     public Context(Object rootObject) {
         this.rootObject = new TypedValue(rootObject);
         this.propertyAccessors = new ArrayList<>();
@@ -29,5 +31,9 @@ public class Context {
 
     public TypeComparator getTypeComparator() {
         return typeComparator;
+    }
+
+    public List<MethodResolver> getMethodResolvers() {
+        return this.methodResolvers;
     }
 }
