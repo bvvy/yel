@@ -1,21 +1,15 @@
 package org.bvvy.yel.exp;
 
 import org.bvvy.yel.exp.ast.*;
-import org.bvvy.yel.exp.token.Token;
-import org.bvvy.yel.exp.token.Tokenizer;
-import org.bvvy.yel.parser.ExpressionParser;
+import org.bvvy.yel.parser.YelExpressionParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-public class TestExpressionParser {
+public class TestYelExpressionParser {
 
     public Node parse(String expression) {
-        Tokenizer tokenizer = new Tokenizer(expression);
-        List<Token> tokens = tokenizer.process();
-        ExpressionParser expressionParser = new ExpressionParser(tokens);
-        Expression yeExpr = expressionParser.parse();
+        YelExpressionParser yelExpressionParser = new YelExpressionParser();
+        YelExpression yeExpr = yelExpressionParser.parse(expression);
         return yeExpr.getAst();
     }
 

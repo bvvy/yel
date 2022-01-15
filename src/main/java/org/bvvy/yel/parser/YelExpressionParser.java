@@ -1,9 +1,10 @@
 package org.bvvy.yel.parser;
 
-import org.bvvy.yel.exp.Expression;
+import org.bvvy.yel.exp.YelExpression;
 import org.bvvy.yel.exp.ast.*;
 import org.bvvy.yel.exp.token.Token;
 import org.bvvy.yel.exp.token.TokenKind;
+import org.bvvy.yel.exp.token.Tokenizer;
 
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
@@ -15,22 +16,23 @@ import java.util.List;
  * @author bvvy
  * @date 2021/11/22
  */
-public class ExpressionParser {
+public class YelExpressionParser {
 
-    private final List<Token> tokenStream;
+    private List<Token> tokenStream;
     private int tokenStreamPointer;
     private int tokenStreamLength;
     private Deque<Node> constructedNodes = new ArrayDeque<>();
 
-
-    public ExpressionParser(List<Token> tokens) {
-        this.tokenStream = tokens;
-        this.tokenStreamLength = tokens.size();
+    public YelExpressionParser() {
     }
 
-    public Expression parse() {
+    public YelExpression parse(String expression) {
+        Tokenizer tokenizer = new Tokenizer(expression);
+        List<Token> tokens = tokenizer.process();
+        this.tokenStream = tokens;
+        this.tokenStreamLength = tokens.size();
         Node ast = this.eatExpression();
-        return new Expression(ast);
+        return new YelExpression(ast);
     }
 
     private Node eatExpression() {

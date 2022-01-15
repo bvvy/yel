@@ -1,8 +1,8 @@
 package org.bvvy.yel;
 
 
-import org.bvvy.yel.exp.Expression;
-import org.bvvy.yel.parser.ExpressionParser;
+import org.bvvy.yel.exp.YelExpression;
+import org.bvvy.yel.parser.YelExpressionParser;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.exp.token.Token;
 import org.bvvy.yel.exp.token.Tokenizer;
@@ -21,11 +21,10 @@ public class Yel {
     }
 
     public Object eval(String expression, Object env) {
-        Tokenizer tokenizer = new Tokenizer(expression);
-        List<Token> tokens = tokenizer.process();
+
         Context context = new Context(env);
-        ExpressionParser expressionParser = new ExpressionParser(tokens);
-        Expression exp = expressionParser.parse();
+        YelExpressionParser yelExpressionParser = new YelExpressionParser();
+        YelExpression exp = yelExpressionParser.parse(expression);
         return exp.getValue(context);
     }
 
