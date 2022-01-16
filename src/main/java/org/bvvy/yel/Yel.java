@@ -21,7 +21,6 @@ public class Yel {
     }
 
     public Object eval(String expression, Object env) {
-
         Context context = new Context(env);
         YelExpressionParser yelExpressionParser = new YelExpressionParser();
         YelExpression exp = yelExpressionParser.parse(expression);

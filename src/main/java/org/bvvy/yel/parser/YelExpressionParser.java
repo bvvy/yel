@@ -31,6 +31,8 @@ public class YelExpressionParser {
         List<Token> tokens = tokenizer.process();
         this.tokenStream = tokens;
         this.tokenStreamLength = tokens.size();
+        this.constructedNodes.clear();
+        this.tokenStreamPointer = 0;
         Node ast = this.eatExpression();
         return new YelExpression(ast);
     }
