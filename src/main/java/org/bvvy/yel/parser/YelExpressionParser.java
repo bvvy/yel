@@ -22,8 +22,14 @@ public class YelExpressionParser {
     private int tokenStreamPointer;
     private int tokenStreamLength;
     private Deque<Node> constructedNodes = new ArrayDeque<>();
+    private YelParserConfiguration configuration;
 
     public YelExpressionParser() {
+        this.configuration = new YelParserConfiguration();
+    }
+
+    public YelExpressionParser(YelParserConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     public YelExpression parse(String expression) {
