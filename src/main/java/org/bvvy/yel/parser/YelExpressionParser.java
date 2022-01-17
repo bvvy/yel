@@ -40,7 +40,7 @@ public class YelExpressionParser {
         this.constructedNodes.clear();
         this.tokenStreamPointer = 0;
         Node ast = this.eatExpression();
-        return new YelExpression(ast);
+        return new YelExpression(ast, this.configuration);
     }
 
     private Node eatExpression() {

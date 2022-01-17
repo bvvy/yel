@@ -15,5 +15,7 @@ public class YelParserConfiguration {
         this.compilerMode = compilerMode == null ? YelCompilerMode.OFF : compilerMode;
     }
 
-
+    public YelCompilerMode getCompilerMode() {
+        return compilerMode;
+    }
 }

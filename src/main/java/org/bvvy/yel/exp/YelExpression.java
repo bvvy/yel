@@ -3,6 +3,10 @@ package org.bvvy.yel.exp;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.ast.Node;
+import org.bvvy.yel.parser.YelCompilerMode;
+import org.bvvy.yel.parser.YelParserConfiguration;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author bvvy
@@ -12,10 +16,15 @@ public class YelExpression implements Expression {
 
     private final Node ast;
 
+    private YelParserConfiguration configuration;
+
     private CompiledExpression compiledAst;
 
-    public YelExpression(Node ast) {
+    private final AtomicInteger interpretedCount = new AtomicInteger();
+
+    public YelExpression(Node ast, YelParserConfiguration configuration) {
         this.ast = ast;
+        this.configuration = configuration;
     }
 
     public Object getValue(Context context) {
@@ -33,7 +42,35 @@ public class YelExpression implements Expression {
     }
 
     private void checkCompile() {
+        interpretedCount.incrementAndGet();
+        YelCompilerMode compilerMode = this.configuration.getCompilerMode();
+        if (compilerMode != YelCompilerMode.OFF) {
+            if (compilerMode == YelCompilerMode.IMMEDIATE) {
+                if (this.interpretedCount.get() > 1) {
+                    compileExpression();
+                }
+            }
+        }
+    }
 
+    public boolean compileExpression() {
+        CompiledExpression compiledAst = this.compiledAst;
+        if (compiledAst != null) {
+            return true;
+        }
+        synchronized (this) {
+            if (this.compiledAst != null) {
+                return true;
+            }
+            YelCompiler compiler = new YelCompiler();
+            compiledAst = compiler.compile(this.ast);
+            if (compiledAst != null) {
+                this.compiledAst = compiledAst;
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     public Node getAst() {

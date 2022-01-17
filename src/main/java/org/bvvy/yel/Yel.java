@@ -22,13 +22,13 @@ public class Yel {
 
     public Object eval(String expression, Object env) {
         Context context = new Context(env);
-        YelExpressionParser yelExpressionParser = new YelExpressionParser();
-        YelExpression exp = yelExpressionParser.parse(expression);
-        return exp.getValue(context);
+        return eval(expression, context);
     }
 
 
     public Object eval(String expression, Context context) {
-        return null;
+        YelExpressionParser yelExpressionParser = new YelExpressionParser();
+        YelExpression exp = yelExpressionParser.parse(expression);
+        return exp.getValue(context);
     }
 }
