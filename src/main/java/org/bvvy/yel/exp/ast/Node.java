@@ -21,4 +21,6 @@ public interface Node {
     ValueRef getValueRef(ExpressionState state);
 
     void generateCode(MethodVisitor mv, CodeFlow cf);
+
+    String getExitDescriptor();
 }
