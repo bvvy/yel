@@ -18,6 +18,8 @@ public abstract class NodeImpl implements Node {
 
     protected Node[] children;
 
+    protected String exitTypeDescriptor;
+
     public NodeImpl(int startPos, int endPos) {
         this(startPos, endPos, new Node[0]);
     }
@@ -59,6 +61,6 @@ public abstract class NodeImpl implements Node {
 
     @Override
     public String getExitDescriptor() {
-        return null;
+        return this.exitTypeDescriptor;
     }
 }
