@@ -64,4 +64,9 @@ public abstract class NodeImpl implements Node {
     public String getExitDescriptor() {
         return this.exitTypeDescriptor;
     }
+
+    @Override
+    public boolean isCompilable() {
+        return false;
+    }
 }

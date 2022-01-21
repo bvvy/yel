@@ -23,4 +23,6 @@ public interface Node {
     void generateCode(MethodVisitor mv, CodeFlow cf);
 
     String getExitDescriptor();
+
+    boolean isCompilable();
 }
