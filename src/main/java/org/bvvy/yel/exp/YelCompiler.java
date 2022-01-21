@@ -49,7 +49,7 @@ public class YelCompiler {
         mv.visitEnd();
 
         // getValue method
-        mv = cw.visitMethod(ACC_PUBLIC, "getValue", "(Ljava/lang/Object;" + contextClass + ")", null, new String[]{"org/bvvy/yel/exception/YelException"});
+        mv = cw.visitMethod(ACC_PUBLIC, "getValue", "(Ljava/lang/Object;L" + contextClass + ")", null, new String[]{"org/bvvy/yel/exception/YelEvaluationException"});
         mv.visitCode();
 
         CodeFlow cf = new CodeFlow(className, cw);
@@ -65,7 +65,7 @@ public class YelCompiler {
 
         byte[] data = cw.toByteArray();
 
-        return loadClass(className, data);
+        return loadClass(className.replaceAll("/", "."), data);
 
     }
 

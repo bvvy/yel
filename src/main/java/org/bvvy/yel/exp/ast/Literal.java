@@ -17,4 +17,8 @@ public class Literal extends NodeImpl {
     public TypedValue getValueInternal(ExpressionState state) {
         return this.value;
     }
+
+    public String getOriginalValue() {
+        return originalValue;
+    }
 }
