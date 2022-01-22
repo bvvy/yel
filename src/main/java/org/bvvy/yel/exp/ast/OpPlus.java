@@ -1,9 +1,11 @@
 package org.bvvy.yel.exp.ast;
 
+import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.Operation;
 import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.util.NumberUtils;
+import org.objectweb.asm.MethodVisitor;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -20,6 +22,15 @@ public class OpPlus extends Operator {
         if (this.children.length < 2) {
             Object operandOne = leftOp.getValueInternal(state).getValue();
             if (operandOne instanceof Number) {
+                if (operandOne instanceof Double) {
+                    this.exitTypeDescriptor = "D";
+                } else if (operandOne instanceof Float) {
+                    this.exitTypeDescriptor = "F";
+                } else if (operandOne instanceof Long) {
+                    this.exitTypeDescriptor = "J";
+                } else if (operandOne instanceof Integer) {
+                    this.exitTypeDescriptor = "I";
+                }
                 return new TypedValue(operandOne);
             }
             return state.operate(Operation.ADD, leftOp, null);
@@ -34,22 +45,26 @@ public class OpPlus extends Operator {
                 BigDecimal rightBigDecimal = NumberUtils.convertNumberToTargetClass(rightNumber, BigDecimal.class);
                 return new TypedValue(leftBigDecimal.add(rightBigDecimal));
             } else if (leftNumber instanceof Double || rightNumber instanceof Double) {
+                this.exitTypeDescriptor = "D";
                 return new TypedValue(leftNumber.doubleValue() + rightNumber.doubleValue());
             } else if (leftNumber instanceof Float || rightNumber instanceof Float) {
+                this.exitTypeDescriptor = "F";
                 return new TypedValue(leftNumber.floatValue() + rightNumber.floatValue());
             } else if (leftNumber instanceof BigInteger || rightNumber instanceof BigInteger) {
                 BigInteger leftBigInteger = NumberUtils.convertNumberToTargetClass(leftNumber, BigInteger.class);
                 BigInteger rightBigInteger = NumberUtils.convertNumberToTargetClass(rightNumber, BigInteger.class);
                 return new TypedValue(leftBigInteger.add(rightBigInteger));
             } else if (leftNumber instanceof Long || rightNumber instanceof Long) {
+                this.exitTypeDescriptor = "J";
                 return new TypedValue(leftNumber.longValue() + rightNumber.longValue());
             } else if (NumberUtils.isIntegerForNumericOp(leftNumber)|| NumberUtils.isIntegerForNumericOp(rightNumber)) {
+                this.exitTypeDescriptor = "I";
                 return new TypedValue(leftNumber.intValue() + rightNumber.intValue());
             }else {
                 return new TypedValue(leftNumber.doubleValue() + rightNumber.doubleValue());
             }
-
         }
         return state.operate(Operation.ADD, leftOperand, rightOperand);
     }
+
 }

@@ -1,9 +1,11 @@
 package org.bvvy.yel.exp.ast;
 
+import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.Operation;
 import org.bvvy.yel.util.NumberUtils;
 import org.bvvy.yel.exp.TypedValue;
+import org.objectweb.asm.MethodVisitor;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -51,16 +53,20 @@ public class OpMinus extends Operator {
                 BigDecimal rightBigDecimal = NumberUtils.convertNumberToTargetClass(rightNumber, BigDecimal.class);
                 return new TypedValue(leftBigDecimal.subtract(rightBigDecimal));
             } else if (leftNumber instanceof Double || rightNumber instanceof Double) {
+                this.exitTypeDescriptor = "D";
                 return new TypedValue(leftNumber.doubleValue() - rightNumber.doubleValue());
             } else if (leftNumber instanceof Float || rightNumber instanceof Float) {
+                this.exitTypeDescriptor = "F";
                 return new TypedValue(leftNumber.floatValue() - rightNumber.floatValue());
             } else if (leftNumber instanceof BigInteger || rightNumber instanceof BigInteger) {
                 BigInteger leftBigInteger = NumberUtils.convertNumberToTargetClass(leftNumber, BigInteger.class);
                 BigInteger rightBigInteger = NumberUtils.convertNumberToTargetClass(rightNumber, BigInteger.class);
                 return new TypedValue(leftBigInteger.subtract(rightBigInteger));
             } else if (leftNumber instanceof Long || rightNumber instanceof Long) {
+                this.exitTypeDescriptor = "J";
                 return new TypedValue(leftNumber.longValue() - rightNumber.longValue());
             } else if (NumberUtils.isIntegerForNumericOp(leftNumber) || NumberUtils.isIntegerForNumericOp(rightNumber)) {
+                this.exitTypeDescriptor = "I";
                 return new TypedValue(leftNumber.intValue() - rightNumber.intValue());
             } else {
                 return new TypedValue(leftNumber.doubleValue() - rightNumber.doubleValue());
@@ -68,5 +74,37 @@ public class OpMinus extends Operator {
 
         }
         return state.operate(Operation.MINUS, leftOperand, rightOperand);
+    }
+
+
+    @Override
+    public boolean isCompilable() {
+        if (!getLeftOperand().isCompilable()) {
+            return false;
+        }
+        if (this.children.length > 1) {
+            if (!getRightOperand().isCompilable()) {
+                return false;
+            }
+        }
+        return (this.exitTypeDescriptor != null);
+    }
+
+    @Override
+    public void generateCode(MethodVisitor mv, CodeFlow cf) {
+        Node left = getLeftOperand();
+        left.generateCode(mv, cf);
+        String leftDesc = left.getExitDescriptor();
+        String exitDesc = this.exitTypeDescriptor;
+        char targetDesc = exitDesc.charAt(0);
+        CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, leftDesc, targetDesc);
+        if (this.children.length > 1) {
+            cf.enterCompilationScope();
+            Node right = getRightOperand();
+            String rightDesc = right.getExitDescriptor();
+            cf.exitCompilationScope();
+            CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, rightDesc, targetDesc);
+        }
+
     }
 }
