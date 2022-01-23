@@ -3,9 +3,10 @@ package org.bvvy.yel.exp.ast;
 import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.Operation;
-import org.bvvy.yel.util.NumberUtils;
 import org.bvvy.yel.exp.TypedValue;
+import org.bvvy.yel.util.NumberUtils;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -104,6 +105,24 @@ public class OpMinus extends Operator {
             String rightDesc = right.getExitDescriptor();
             cf.exitCompilationScope();
             CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, rightDesc, targetDesc);
+            switch (targetDesc) {
+                case 'I':
+                    mv.visitInsn(Opcodes.ISUB);
+                    break;
+                case 'J':
+                    mv.visitInsn(Opcodes.LSUB);
+                    break;
+                case 'F':
+                    mv.visitInsn(Opcodes.FSUB);
+                    break;
+                case 'D':
+                    mv.visitInsn(Opcodes.DSUB);
+                    break;
+            }
+        } else {
+            switch (targetDesc) {
+
+            }
         }
 
     }
