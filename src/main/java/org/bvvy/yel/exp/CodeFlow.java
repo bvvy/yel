@@ -2,6 +2,7 @@ package org.bvvy.yel.exp;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -27,16 +28,88 @@ public class CodeFlow {
         }
     }
 
-    private static void insertAnyNecessaryTypeConversionBytecodes(MethodVisitor mv, char targetDescriptor, String stackDescriptor) {
+    public static void insertAnyNecessaryTypeConversionBytecodes(MethodVisitor mv, char targetDescriptor, String stackDescriptor) {
+        if (CodeFlow.isPrimitive(stackDescriptor)) {
+            char stackTop = stackDescriptor.charAt(0);
+            if (stackTop == 'I' || stackTop == 'B' || stackTop == 'S' || stackTop == 'C') {
+                if (targetDescriptor == 'D') {
+                    mv.visitInsn(Opcodes.I2D);
+                } else if (targetDescriptor == 'F') {
+                    mv.visitInsn(Opcodes.I2F);
+                } else if (targetDescriptor == 'J') {
+                    mv.visitInsn(Opcodes.I2L);
+                } else if (targetDescriptor == 'I') {
+                    // nop
+                } else {
+                    throw new IllegalStateException("cannot cast");
+                }
+            } else if (stackTop == 'J') {
+                if (targetDescriptor == 'D') {
+                    mv.visitInsn(Opcodes.L2D);
+                } else if (targetDescriptor == 'F') {
+                    mv.visitInsn(Opcodes.L2F);
+                } else if (targetDescriptor == 'J') {
+                    // nop
+                } else if (targetDescriptor == 'I') {
+                    mv.visitInsn(Opcodes.L2I);
+                } else {
+                    throw new IllegalStateException("cannot cast");
+                }
+            } else if (stackTop == 'D') {
+                if (targetDescriptor == 'D') {
+                    // nop
+                } else if (targetDescriptor == 'F') {
+                    mv.visitInsn(Opcodes.D2F);
+                } else if (targetDescriptor == 'J') {
+                    mv.visitInsn(Opcodes.D2L);
+                } else if (targetDescriptor == 'I') {
+                    mv.visitInsn(Opcodes.D2I);
+                } else {
+                    throw new IllegalStateException("cannot cast");
+                }
+            }
+        }
 
     }
 
     private static void insertUnboxNumberInsns(MethodVisitor mv, char targetDescriptor, String stackDescriptor) {
+        if (stackDescriptor == null) {
+            return;
+        }
+        switch (targetDescriptor) {
+            case 'D':
+                if (stackDescriptor.equals("Ljava/lang/Object")) {
+                    mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
+                }
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "doubleValue", "()D", false);
+                break;
+            case 'F':
+                if (stackDescriptor.equals("Ljava/lang/Object")) {
+                    mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
+                }
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "floatValue", "()D", false);
+                break;
+            case 'J':
+                if (stackDescriptor.equals("Ljava/lang/Object")) {
+                    mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
+                }
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "longValue", "()D", false);
+                break;
+            case 'I':
+                if (stackDescriptor.equals("Ljava/lang/Object")) {
+                    mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
+                }
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "intValue", "()D", false);
+                break;
+            default:
+                throw new IllegalArgumentException("Unboxing fail ");
+        }
+
 
     }
 
-    private static boolean isPrimitive(String stackDescriptor) {
-        return false;
+    private static boolean isPrimitive(String descriptor) {
+        return (descriptor != null && descriptor.length() == 1);
     }
 
     public void pushDescriptor(String exitTypeDescriptor) {
@@ -48,6 +121,6 @@ public class CodeFlow {
     }
 
     public void exitCompilationScope() {
-
+        this.compilationScopes.pop();
     }
 }
