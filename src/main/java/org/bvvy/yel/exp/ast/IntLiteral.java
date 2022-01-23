@@ -3,6 +3,7 @@ package org.bvvy.yel.exp.ast;
 import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.TypedValue;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * @author bvvy
@@ -17,6 +18,14 @@ public class IntLiteral extends Literal {
 
     @Override
     public void generateCode(MethodVisitor mv, CodeFlow cf) {
-        super.generateCode(mv, cf);
+        Integer intValue = (Integer) this.value.getValue();
+        if (intValue == -1) {
+            mv.visitInsn(Opcodes.ICONST_M1);
+        } else if (intValue > 0 && intValue < 6) {
+            mv.visitInsn(Opcodes.ICONST_0 + intValue);
+        } else {
+            mv.visitLdcInsn(intValue);
+        }
+        cf.pushDescriptor(this.exitTypeDescriptor);
     }
 }
