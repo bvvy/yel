@@ -99,14 +99,14 @@ public class OpMinus extends Operator {
     public void generateCode(MethodVisitor mv, CodeFlow cf) {
         Node left = getLeftOperand();
         left.generateCode(mv, cf);
-        String leftDesc = left.getExitDescriptor();
+        String leftDesc = left.getExitTypeDescriptor();
         String exitDesc = this.exitTypeDescriptor;
         char targetDesc = exitDesc.charAt(0);
         CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, leftDesc, targetDesc);
         if (this.children.length > 1) {
             cf.enterCompilationScope();
             Node right = getRightOperand();
-            String rightDesc = right.getExitDescriptor();
+            String rightDesc = right.getExitTypeDescriptor();
             cf.exitCompilationScope();
             CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, rightDesc, targetDesc);
             switch (targetDesc) {
