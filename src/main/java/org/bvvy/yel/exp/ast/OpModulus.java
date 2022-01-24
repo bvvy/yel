@@ -54,6 +54,19 @@ public class OpModulus extends Operator {
     }
 
     @Override
+    public boolean isCompilable() {
+        if (!getLeftOperand().isCompilable()) {
+            return false;
+        }
+        if (this.children.length > 1) {
+            if (!getRightOperand().isCompilable()) {
+                return false;
+            }
+        }
+        return (this.exitTypeDescriptor != null);
+    }
+
+    @Override
     public void generateCode(MethodVisitor mv, CodeFlow cf) {
         Node left = getLeftOperand();
         left.generateCode(mv, cf);

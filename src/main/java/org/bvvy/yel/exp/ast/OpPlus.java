@@ -72,6 +72,20 @@ public class OpPlus extends Operator {
         return state.operate(Operation.ADD, leftOperand, rightOperand);
     }
 
+
+    @Override
+    public boolean isCompilable() {
+        if (!getLeftOperand().isCompilable()) {
+            return false;
+        }
+        if (this.children.length > 1) {
+            if (!getRightOperand().isCompilable()) {
+                return false;
+            }
+        }
+        return (this.exitTypeDescriptor != null);
+    }
+
     @Override
     public void generateCode(MethodVisitor mv, CodeFlow cf) {
         if ("Ljava/lang/String".equals(this.exitTypeDescriptor)) {
