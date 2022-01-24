@@ -3,15 +3,15 @@ package org.bvvy.yel.parser;
 /**
  * @author bvvy
  */
-public class YelParserConfiguration {
+public class YelParserConfig {
 
     private final YelCompilerMode compilerMode;
 
-    public YelParserConfiguration() {
+    public YelParserConfig() {
         this(null);
     }
 
-    public YelParserConfiguration(YelCompilerMode compilerMode) {
+    public YelParserConfig(YelCompilerMode compilerMode) {
         this.compilerMode = compilerMode == null ? YelCompilerMode.OFF : compilerMode;
     }
 

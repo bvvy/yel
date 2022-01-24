@@ -1,13 +1,10 @@
 package org.bvvy.yel;
 
 
+import org.bvvy.yel.config.YelConfig;
+import org.bvvy.yel.context.Context;
 import org.bvvy.yel.exp.YelExpression;
 import org.bvvy.yel.parser.YelExpressionParser;
-import org.bvvy.yel.context.Context;
-import org.bvvy.yel.exp.token.Token;
-import org.bvvy.yel.exp.token.Tokenizer;
-
-import java.util.List;
 
 /**
  * @author bvvy
@@ -15,6 +12,15 @@ import java.util.List;
  */
 public class Yel {
 
+    private YelConfig yelConfig;
+
+    public Yel(YelConfig yelConfig) {
+        this.yelConfig = yelConfig;
+    }
+
+    public Yel() {
+        this.yelConfig = new YelConfig();
+    }
 
     public Object eval(String expression) {
         return eval(expression, (Object) null);
@@ -27,7 +33,7 @@ public class Yel {
 
 
     public Object eval(String expression, Context context) {
-        YelExpressionParser yelExpressionParser = new YelExpressionParser();
+        YelExpressionParser yelExpressionParser = new YelExpressionParser(yelConfig.getYelParserConfig());
         YelExpression exp = yelExpressionParser.parse(expression);
         return exp.getValue(context);
     }

@@ -4,7 +4,7 @@ import org.bvvy.yel.context.Context;
 import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.ast.Node;
 import org.bvvy.yel.parser.YelCompilerMode;
-import org.bvvy.yel.parser.YelParserConfiguration;
+import org.bvvy.yel.parser.YelParserConfig;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,13 +16,13 @@ public class YelExpression implements Expression {
 
     private final Node ast;
 
-    private YelParserConfiguration configuration;
+    private YelParserConfig configuration;
 
     private CompiledExpression compiledAst;
 
     private final AtomicInteger interpretedCount = new AtomicInteger();
 
-    public YelExpression(Node ast, YelParserConfiguration configuration) {
+    public YelExpression(Node ast, YelParserConfig configuration) {
         this.ast = ast;
         this.configuration = configuration;
     }
