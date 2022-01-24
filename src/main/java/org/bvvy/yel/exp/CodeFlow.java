@@ -1,5 +1,6 @@
 package org.bvvy.yel.exp;
 
+import org.bvvy.yel.util.CollectionUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -122,5 +123,9 @@ public class CodeFlow {
 
     public void exitCompilationScope() {
         this.compilationScopes.pop();
+    }
+
+    public String lastDescriptor() {
+        return CollectionUtils.lastElement(this.compilationScopes.peek());
     }
 }

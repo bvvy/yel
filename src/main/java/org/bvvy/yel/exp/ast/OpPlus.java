@@ -80,7 +80,7 @@ public class OpPlus extends Operator {
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false);
             walk(mv, cf, getLeftOperand());
             walk(mv, cf, getRightOperand());
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String", false);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
         } else {
             Node left = getLeftOperand();
             left.generateCode(mv, cf);
@@ -115,7 +115,20 @@ public class OpPlus extends Operator {
         }
     }
 
-    private void walk(MethodVisitor mv, CodeFlow cf, Node node) {
+    private void walk(MethodVisitor mv, CodeFlow cf, Node operand) {
+        if (operand instanceof OpPlus) {
+            OpPlus plus = (OpPlus) operand;
+            walk(mv, cf, plus.getLeftOperand());
+            walk(mv, cf, plus.getRightOperand());
+        } else if (operand != null) {
+            cf.enterCompilationScope();
+            operand.generateCode(mv,cf);
+            if ("Ljava/lang/String".equals(cf.lastDescriptor())) {
+                mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/String");
+            }
+            cf.exitCompilationScope();
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+        }
 
     }
 
