@@ -118,12 +118,27 @@ public class OpMinus extends Operator {
                 case 'D':
                     mv.visitInsn(Opcodes.DSUB);
                     break;
+                default:
+                    throw new IllegalStateException("unknown exit type");
             }
         } else {
             switch (targetDesc) {
-
+                case 'I':
+                    mv.visitInsn(Opcodes.INEG);
+                    break;
+                case 'J':
+                    mv.visitInsn(Opcodes.LNEG);
+                    break;
+                case 'F':
+                    mv.visitInsn(Opcodes.FNEG);
+                    break;
+                case 'D':
+                    mv.visitInsn(Opcodes.DNEG);
+                    break;
+                default:
+                    throw new IllegalStateException("unknown exit type");
             }
         }
-
+        cf.pushDescriptor(this.exitTypeDescriptor);
     }
 }
