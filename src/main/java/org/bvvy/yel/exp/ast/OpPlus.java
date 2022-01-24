@@ -6,6 +6,7 @@ import org.bvvy.yel.exp.Operation;
 import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.util.NumberUtils;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -37,7 +38,7 @@ public class OpPlus extends Operator {
         }
         Object leftOperand = leftOp.getValueInternal(state).getValue();
         Object rightOperand = getRightOperand().getValueInternal(state).getValue();
-        if (leftOperand instanceof Number || rightOperand instanceof Number) {
+        if (leftOperand instanceof Number && rightOperand instanceof Number) {
             Number leftNumber = (Number) leftOperand;
             Number rightNumber = (Number) rightOperand;
             if (leftNumber instanceof BigDecimal || rightNumber instanceof BigDecimal) {
@@ -57,14 +58,66 @@ public class OpPlus extends Operator {
             } else if (leftNumber instanceof Long || rightNumber instanceof Long) {
                 this.exitTypeDescriptor = "J";
                 return new TypedValue(leftNumber.longValue() + rightNumber.longValue());
-            } else if (NumberUtils.isIntegerForNumericOp(leftNumber)|| NumberUtils.isIntegerForNumericOp(rightNumber)) {
+            } else if (NumberUtils.isIntegerForNumericOp(leftNumber) || NumberUtils.isIntegerForNumericOp(rightNumber)) {
                 this.exitTypeDescriptor = "I";
                 return new TypedValue(leftNumber.intValue() + rightNumber.intValue());
-            }else {
+            } else {
                 return new TypedValue(leftNumber.doubleValue() + rightNumber.doubleValue());
             }
         }
+        if (leftOperand instanceof String && rightOperand instanceof String) {
+            this.exitTypeDescriptor = "Ljava/lang/String";
+            return new TypedValue((String) leftOperand + rightOperand);
+        }
         return state.operate(Operation.ADD, leftOperand, rightOperand);
     }
+
+    @Override
+    public void generateCode(MethodVisitor mv, CodeFlow cf) {
+        if ("Ljava/lang/String".equals(this.exitTypeDescriptor)) {
+            mv.visitTypeInsn(Opcodes.NEW, "java/lang/StringBuilder");
+            mv.visitInsn(Opcodes.DUP);
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false);
+            walk(mv, cf, getLeftOperand());
+            walk(mv, cf, getRightOperand());
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String", false);
+        } else {
+            Node left = getLeftOperand();
+            left.generateCode(mv, cf);
+            String leftDesc = left.getExitDescriptor();
+            String exitDesc = this.exitTypeDescriptor;
+            char targetDesc = exitDesc.charAt(0);
+            CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, leftDesc, targetDesc);
+            if (this.children.length > 1) {
+                cf.enterCompilationScope();
+                Node right = getRightOperand();
+                String rightDesc = right.getExitDescriptor();
+                cf.exitCompilationScope();
+                CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, rightDesc, targetDesc);
+                switch (targetDesc) {
+                    case 'I':
+                        mv.visitInsn(Opcodes.IADD);
+                        break;
+                    case 'J':
+                        mv.visitInsn(Opcodes.LADD);
+                        break;
+                    case 'F':
+                        mv.visitInsn(Opcodes.FADD);
+                        break;
+                    case 'D':
+                        mv.visitInsn(Opcodes.DADD);
+                        break;
+                    default:
+                        throw new IllegalStateException("unknown exit type");
+                }
+            }
+            cf.pushDescriptor(this.exitTypeDescriptor);
+        }
+    }
+
+    private void walk(MethodVisitor mv, CodeFlow cf, Node node) {
+
+    }
+
 
 }
