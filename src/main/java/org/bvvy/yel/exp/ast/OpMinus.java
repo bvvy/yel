@@ -25,14 +25,18 @@ public class OpMinus extends Operator {
                 if (operand instanceof BigDecimal) {
                     return new TypedValue(((BigDecimal) operand).negate());
                 } else if (operand instanceof Double) {
+                    this.exitTypeDescriptor = "D";
                     return new TypedValue(-(Double) operand);
                 } else if (operand instanceof Float) {
+                    this.exitTypeDescriptor = "F";
                     return new TypedValue(-(Float) operand);
                 } else if (operand instanceof BigInteger) {
                     return new TypedValue(((BigInteger) operand).negate());
                 } else if (operand instanceof Long) {
+                    this.exitTypeDescriptor = "J";
                     return new TypedValue(-(Long) operand);
                 } else if (operand instanceof Integer) {
+                    this.exitTypeDescriptor = "I";
                     return new TypedValue(-(Integer) operand);
                 } else if (operand instanceof Short) {
                     return new TypedValue(-(Short) operand);
@@ -46,7 +50,7 @@ public class OpMinus extends Operator {
         }
         Object leftOperand = leftOp.getValueInternal(state).getValue();
         Object rightOperand = getRightOperand().getValueInternal(state).getValue();
-        if (leftOperand instanceof Number || rightOperand instanceof Number) {
+        if (leftOperand instanceof Number && rightOperand instanceof Number) {
             Number leftNumber = (Number) leftOperand;
             Number rightNumber = (Number) rightOperand;
             if (leftNumber instanceof BigDecimal || rightNumber instanceof BigDecimal) {
@@ -116,7 +120,7 @@ public class OpMinus extends Operator {
                     mv.visitInsn(Opcodes.FSUB);
                     break;
                 case 'D':
-                    mv.visitInsn(Opcodes.DSUB);
+                    mv.visitInsn(Opcodes.DNEG);
                     break;
                 default:
                     throw new IllegalStateException("unknown exit type");
