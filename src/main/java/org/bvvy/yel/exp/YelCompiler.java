@@ -1,5 +1,6 @@
 package org.bvvy.yel.exp;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bvvy.yel.exp.ast.Node;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -14,10 +15,15 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * @author bvvy
  */
+@Slf4j
 public class YelCompiler {
     private AtomicInteger suffixId = new AtomicInteger(1);
 
     private ChildClassLoader childClassLoader;
+
+    public YelCompiler() {
+        this.childClassLoader = new ChildClassLoader(Thread.currentThread().getContextClassLoader());
+    }
 
     public CompiledExpression compile(Node expression) {
         Class<? extends CompiledExpression> clazz = createExpressionClass(expression);
@@ -49,14 +55,19 @@ public class YelCompiler {
         mv.visitEnd();
 
         // getValue method
-        mv = cw.visitMethod(ACC_PUBLIC, "getValue", "(Ljava/lang/Object;L" + contextClass + ")", null, new String[]{"org/bvvy/yel/exception/YelEvaluationException"});
+        mv = cw.visitMethod(ACC_PUBLIC, "getValue", "(Ljava/lang/Object;L" + contextClass + ";)Ljava/lang/Object;", null, new String[]{"org/bvvy/yel/exception/YelEvaluationException"});
         mv.visitCode();
 
         CodeFlow cf = new CodeFlow(className, cw);
         try {
             expressionToCompile.generateCode(mv, cf);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return null;
+        }
+        CodeFlow.insertBoxIfNecessary(mv, cf.lastDescriptor());
+        if ("V".equals(cf.lastDescriptor())) {
+            mv.visitInsn(ACONST_NULL);
         }
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);

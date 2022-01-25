@@ -1,7 +1,7 @@
 package org.bvvy.yel.exp;
 
 import org.bvvy.yel.util.CollectionUtils;
-import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -17,8 +17,9 @@ public class CodeFlow {
 
     private final Deque<List<String>> compilationScopes;
 
-    public CodeFlow(String className, ClassWriter cw) {
+    public CodeFlow(String className, ClassVisitor cv) {
         this.compilationScopes = new ArrayDeque<>();
+        this.compilationScopes.add(new ArrayList<>());
     }
 
     public static void insertNumericUnboxOrPrimitiveTypeCoercion(MethodVisitor mv, String stackDescriptor, char targetDescriptor) {
@@ -111,6 +112,47 @@ public class CodeFlow {
 
     private static boolean isPrimitive(String descriptor) {
         return (descriptor != null && descriptor.length() == 1);
+    }
+
+    public static void insertBoxIfNecessary(MethodVisitor mv, String descriptor) {
+        if (descriptor != null && descriptor.length() == 1) {
+            insertBoxIfNecessary(mv, descriptor.charAt(0));
+        }
+    }
+    public static void insertBoxIfNecessary(MethodVisitor mv, char ch) {
+        switch (ch) {
+            case 'Z':
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+                break;
+            case 'B':
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
+                break;
+            case 'C':
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
+                break;
+            case 'S':
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
+                break;
+            case 'I':
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+                break;
+            case 'J':
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+                break;
+            case 'F':
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
+                break;
+            case 'D':
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+                break;
+            case 'L':
+            case 'V':
+            case '[':
+                break;
+            default:
+                throw new IllegalArgumentException("cannot Boxing descriptor '" + ch + "'");
+
+        }
     }
 
     public void pushDescriptor(String exitTypeDescriptor) {

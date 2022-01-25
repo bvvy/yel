@@ -21,7 +21,7 @@ public class IntLiteral extends Literal {
         Integer intValue = (Integer) this.value.getValue();
         if (intValue == -1) {
             mv.visitInsn(Opcodes.ICONST_M1);
-        } else if (intValue > 0 && intValue < 6) {
+        } else if (intValue >= 0 && intValue < 6) {
             mv.visitInsn(Opcodes.ICONST_0 + intValue);
         } else {
             mv.visitLdcInsn(intValue);
