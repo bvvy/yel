@@ -62,7 +62,7 @@ public class YelCompiler {
         try {
             expressionToCompile.generateCode(mv, cf);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error("fail to compile: " + e.getMessage());
             return null;
         }
         CodeFlow.insertBoxIfNecessary(mv, cf.lastDescriptor());

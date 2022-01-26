@@ -77,6 +77,7 @@ public class OpMultiply extends Operator {
         if (this.children.length > 1) {
             cf.enterCompilationScope();
             Node right = getRightOperand();
+            right.generateCode(mv, cf);
             String rightDesc = right.getExitTypeDescriptor();
             cf.exitCompilationScope();
             CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, rightDesc, targetDesc);
