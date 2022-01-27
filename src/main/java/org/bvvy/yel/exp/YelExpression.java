@@ -22,9 +22,12 @@ public class YelExpression implements Expression {
 
     private final AtomicInteger interpretedCount = new AtomicInteger();
 
+    private YelCompiler yelCompiler;
+
     public YelExpression(Node ast, YelParserConfig configuration) {
         this.ast = ast;
         this.configuration = configuration;
+        this.yelCompiler = configuration.getYelCompiler();
     }
 
     public Object getValue(Context context) {
@@ -62,7 +65,7 @@ public class YelExpression implements Expression {
             if (this.compiledAst != null) {
                 return true;
             }
-            YelCompiler compiler = new YelCompiler();
+            YelCompiler compiler = this.yelCompiler;
             compiledAst = compiler.compile(this.ast);
             if (compiledAst != null) {
                 this.compiledAst = compiledAst;
