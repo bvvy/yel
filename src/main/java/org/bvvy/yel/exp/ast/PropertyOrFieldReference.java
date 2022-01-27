@@ -1,10 +1,14 @@
 package org.bvvy.yel.exp.ast;
 
-import org.bvvy.yel.context.PropertyAccessor;
+import org.bvvy.yel.context.CompilablePropertyAccessor;
 import org.bvvy.yel.context.Context;
+import org.bvvy.yel.context.PropertyAccessor;
 import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypedValue;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 import java.util.List;
 
@@ -22,7 +26,16 @@ public class PropertyOrFieldReference extends NodeImpl {
     @Override
     public TypedValue getValueInternal(ExpressionState state) {
         TypedValue typedValue = getValueInternal(state.getActiveContextObject(), state.getContext());
+        PropertyAccessor accessorToUse = this.cachedReadAccessor;
+        if (accessorToUse instanceof CompilablePropertyAccessor) {
+            CompilablePropertyAccessor accessor = (CompilablePropertyAccessor) accessorToUse;
+            setExitTypeDescriptor(CodeFlow.toDescriptor(accessor.getPropertyType()));
+        }
         return typedValue;
+    }
+
+    public void setExitTypeDescriptor(String descriptor) {
+        this.exitTypeDescriptor = descriptor;
     }
 
     private TypedValue getValueInternal(TypedValue contextObject, Context context) {
@@ -53,5 +66,23 @@ public class PropertyOrFieldReference extends NodeImpl {
         return null;
     }
 
+    @Override
+    public boolean isCompilable() {
+        PropertyAccessor accessorToUse = this.cachedReadAccessor;
+        return accessorToUse instanceof CompilablePropertyAccessor && ((CompilablePropertyAccessor) accessorToUse).isCompilable();
+    }
 
+    @Override
+    public void generateCode(MethodVisitor mv, CodeFlow cf) {
+        PropertyAccessor accessorToUse = this.cachedReadAccessor;
+        if (!(accessorToUse instanceof CompilablePropertyAccessor)) {
+            throw new IllegalStateException("property accessor is not compilable: " + accessorToUse);
+        }
+        if (this.nullSafe) {
+            // todo
+        }
+        ((CompilablePropertyAccessor) accessorToUse).generateCode(this.name, mv, cf);
+        cf.pushDescriptor(this.exitTypeDescriptor);
+
+    }
 }

@@ -349,12 +349,18 @@ public class YelExpressionParser {
             push(new IntLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), Integer.parseInt(t.stringValue(), 16)));
         } else if (t.getKind() == TokenKind.LITERAL_HEXLONG) {
             push(new LongLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), Long.parseLong(t.stringValue(), 16)));
-        } else if (t.getKind() == TokenKind.LITERAL_DECIMAL) {
-            push(new DecimalLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), new BigDecimal(t.stringValue())));
         } else if (t.getKind() == TokenKind.LITERAL_REAL) {
-            push(new RealLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), Double.parseDouble(t.stringValue())));
+            if (configuration.isUseBigDecimalForFloat()) {
+                push(new DecimalLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), new BigDecimal(t.stringValue())));
+            } else {
+                push(new RealLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), Double.parseDouble(t.stringValue())));
+            }
         } else if (t.getKind() == TokenKind.LITERAL_REAL_FLOAT) {
-            push(new FloatLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), Float.parseFloat(t.stringValue())));
+            if (configuration.isUseBigDecimalForFloat()) {
+                push(new DecimalLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), new BigDecimal(t.stringValue())));
+            } else {
+                push(new FloatLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), Float.parseFloat(t.stringValue())));
+            }
         } else if (peekIdentifierToken("true")) {
             push(new BooleanLiteral(t.stringValue(), t.getStartPos(), t.getEndPos(), true));
         } else if (peekIdentifierToken("false")) {

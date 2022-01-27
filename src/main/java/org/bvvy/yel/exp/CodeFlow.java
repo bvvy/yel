@@ -4,6 +4,7 @@ import org.bvvy.yel.util.CollectionUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -89,19 +90,19 @@ public class CodeFlow {
                 if (stackDescriptor.equals("Ljava/lang/Object")) {
                     mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
                 }
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "floatValue", "()D", false);
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "floatValue", "()F", false);
                 break;
             case 'J':
                 if (stackDescriptor.equals("Ljava/lang/Object")) {
                     mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
                 }
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "longValue", "()D", false);
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "longValue", "()J", false);
                 break;
             case 'I':
                 if (stackDescriptor.equals("Ljava/lang/Object")) {
                     mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
                 }
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "intValue", "()D", false);
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "intValue", "()I", false);
                 break;
             default:
                 throw new IllegalArgumentException("Unboxing fail ");
@@ -119,6 +120,7 @@ public class CodeFlow {
             insertBoxIfNecessary(mv, descriptor.charAt(0));
         }
     }
+
     public static void insertBoxIfNecessary(MethodVisitor mv, char ch) {
         switch (ch) {
             case 'Z':
@@ -155,6 +157,91 @@ public class CodeFlow {
         }
     }
 
+    public static void insertCheckCast(MethodVisitor mv, String descriptor) {
+        if (descriptor != null && descriptor.length() != 1) {
+            if (descriptor.charAt(0) == '[') {
+                if (isPrimitiveArray(descriptor)) {
+                    mv.visitTypeInsn(Opcodes.CHECKCAST, descriptor);
+                } else {
+                    mv.visitTypeInsn(Opcodes.CHECKCAST, descriptor + ";");
+                }
+            } else {
+                if (!descriptor.equals("Ljava/lang/Object")) {
+                    mv.visitTypeInsn(Opcodes.CHECKCAST, descriptor.substring(1));
+                }
+            }
+        }
+
+    }
+
+    public static boolean isPrimitiveArray(String descriptor) {
+        if (descriptor == null) {
+            return false;
+        }
+        boolean primitive = true;
+        for (int i = 0, max = descriptor.length(); i < max; i++) {
+            char ch = descriptor.charAt(i);
+            if (ch == '[') {
+                continue;
+            }
+            primitive = (ch != 'L');
+            break;
+        }
+        return primitive;
+    }
+
+    public static String toDescriptor(Class<?> type) {
+        String descriptor = Type.getDescriptor(type);
+        if (descriptor.endsWith(";")) {
+            return descriptor.substring(0, descriptor.length() - 1);
+        }
+        return descriptor;
+    }
+
+    public static void insertBigDecimalCoercion(MethodVisitor mv, String stackDescriptor) {
+        if (stackDescriptor == null) {
+            return;
+        }
+        switch (stackDescriptor) {
+            case "I":
+                mv.visitTypeInsn(Opcodes.NEW, "java/math/BigDecimal");// 1,ref ->
+                mv.visitInsn(Opcodes.DUP_X1); //ref | 1 | ref |  ->
+                mv.visitInsn(Opcodes.SWAP); // ref | ref | 1 ->
+                mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/math/BigDecimal", "<init>", "(I)V", false);
+                break;
+            case "J":
+                mv.visitTypeInsn(Opcodes.NEW, "java/math/BigDecimal");// _,_,ref ->
+                mv.visitInsn(Opcodes.DUP_X2); //ref | _ | _ | ref |  ->
+                mv.visitInsn(Opcodes.DUP_X2); //ref | ref | _ | _ | ref |  ->
+                mv.visitInsn(Opcodes.POP); // ref | ref | _ | _ ->
+                mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/math/BigDecimal", "<init>", "(J)V", false);
+                break;
+            case "D":
+                mv.visitTypeInsn(Opcodes.NEW, "java/math/BigDecimal");// _,_,ref ->
+                mv.visitInsn(Opcodes.DUP_X2); //ref | _ | _ | ref |  ->
+                mv.visitInsn(Opcodes.DUP_X2); //ref | ref | _ | _ | ref |  ->
+                mv.visitInsn(Opcodes.POP); // ref | ref | _ | _ ->
+                mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/math/BigDecimal", "<init>", "(D)V", false);
+                break;
+            case "F":
+                mv.visitTypeInsn(Opcodes.NEW, "java/math/BigDecimal");// 1.1,ref ->
+                mv.visitInsn(Opcodes.DUP_X1); //ref | 1.1 | ref |  ->
+                mv.visitInsn(Opcodes.SWAP); // ref | ref | 1.1 ->
+                mv.visitInsn(Opcodes.F2D);
+                mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/math/BigDecimal", "<init>", "(D)V", false);
+                break;
+            case "Ljava/lang/Object":
+                mv.visitTypeInsn(Opcodes.CHECKCAST, "java/math/BigDecimal");
+                break;
+            case "Ljava/math/BigDecimal":
+                // nop
+                break;
+            default:
+                throw new IllegalStateException("cannot cast '" + stackDescriptor + "' to BigDecimal");
+        }
+
+    }
+
     public void pushDescriptor(String exitTypeDescriptor) {
         this.compilationScopes.element().add(exitTypeDescriptor);
     }
@@ -169,5 +256,9 @@ public class CodeFlow {
 
     public String lastDescriptor() {
         return CollectionUtils.lastElement(this.compilationScopes.peek());
+    }
+
+    public void loadTarget(MethodVisitor mv) {
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
     }
 }

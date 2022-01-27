@@ -31,6 +31,8 @@ public class OpPlus extends Operator {
                     this.exitTypeDescriptor = "J";
                 } else if (operandOne instanceof Integer) {
                     this.exitTypeDescriptor = "I";
+                } else if (operandOne instanceof BigDecimal) {
+                    this.exitTypeDescriptor = "Ljava/math/BigDecimal";
                 }
                 return new TypedValue(operandOne);
             }
@@ -44,6 +46,7 @@ public class OpPlus extends Operator {
             if (leftNumber instanceof BigDecimal || rightNumber instanceof BigDecimal) {
                 BigDecimal leftBigDecimal = NumberUtils.convertNumberToTargetClass(leftNumber, BigDecimal.class);
                 BigDecimal rightBigDecimal = NumberUtils.convertNumberToTargetClass(rightNumber, BigDecimal.class);
+                this.exitTypeDescriptor = "Ljava/math/BigDecimal";
                 return new TypedValue(leftBigDecimal.add(rightBigDecimal));
             } else if (leftNumber instanceof Double || rightNumber instanceof Double) {
                 this.exitTypeDescriptor = "D";
@@ -95,6 +98,21 @@ public class OpPlus extends Operator {
             walk(mv, cf, getLeftOperand());
             walk(mv, cf, getRightOperand());
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
+        } else if ("Ljava/math/BigDecimal".equals(this.exitTypeDescriptor)) {
+            if (this.children.length > 1) {
+                Node left = getLeftOperand();
+                left.generateCode(mv, cf);
+                String leftDesc = left.getExitTypeDescriptor();
+                CodeFlow.insertBigDecimalCoercion(mv, leftDesc);
+                cf.enterCompilationScope();
+                Node right = getRightOperand();
+                right.generateCode(mv, cf);
+                String rightDesc = right.getExitTypeDescriptor();
+                CodeFlow.insertBigDecimalCoercion(mv, rightDesc);
+                cf.exitCompilationScope();
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal", "add","(Ljava/math/BigDecimal;)Ljava/math/BigDecimal;", false);
+                cf.pushDescriptor(this.exitTypeDescriptor);
+            }
         } else {
             Node left = getLeftOperand();
             left.generateCode(mv, cf);
@@ -137,7 +155,7 @@ public class OpPlus extends Operator {
             walk(mv, cf, plus.getRightOperand());
         } else if (operand != null) {
             cf.enterCompilationScope();
-            operand.generateCode(mv,cf);
+            operand.generateCode(mv, cf);
             if ("Ljava/lang/String".equals(cf.lastDescriptor())) {
                 mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/String");
             }

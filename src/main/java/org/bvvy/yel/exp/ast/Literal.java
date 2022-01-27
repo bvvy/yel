@@ -6,7 +6,7 @@ import org.bvvy.yel.exp.TypedValue;
 import org.objectweb.asm.MethodVisitor;
 
 public class Literal extends NodeImpl {
-    private final String originalValue;
+    protected final String originalValue;
     protected TypedValue value;
 
     public Literal(String originalValue, int startPos, int endPos, TypedValue value) {
