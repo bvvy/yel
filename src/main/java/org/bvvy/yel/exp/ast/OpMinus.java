@@ -121,7 +121,7 @@ public class OpMinus extends Operator {
                     mv.visitInsn(Opcodes.FSUB);
                     break;
                 case 'D':
-                    mv.visitInsn(Opcodes.DNEG);
+                    mv.visitInsn(Opcodes.DSUB);
                     break;
                 default:
                     throw new IllegalStateException("unknown exit type");

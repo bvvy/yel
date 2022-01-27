@@ -6,10 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author bvvy
@@ -17,6 +14,7 @@ import java.util.List;
 public class CodeFlow {
 
     private final Deque<List<String>> compilationScopes;
+//    private final BytecodeDescriptorConverter bytecodeDescriptorConverter;
 
     public CodeFlow(String className, ClassVisitor cv) {
         this.compilationScopes = new ArrayDeque<>();

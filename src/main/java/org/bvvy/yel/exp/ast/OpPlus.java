@@ -99,18 +99,18 @@ public class OpPlus extends Operator {
             walk(mv, cf, getRightOperand());
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
         } else if ("Ljava/math/BigDecimal".equals(this.exitTypeDescriptor)) {
+            Node left = getLeftOperand();
+            left.generateCode(mv, cf);
+            String leftDesc = left.getExitTypeDescriptor();
+            CodeFlow.insertBigDecimalCoercion(mv, leftDesc);
             if (this.children.length > 1) {
-                Node left = getLeftOperand();
-                left.generateCode(mv, cf);
-                String leftDesc = left.getExitTypeDescriptor();
-                CodeFlow.insertBigDecimalCoercion(mv, leftDesc);
                 cf.enterCompilationScope();
                 Node right = getRightOperand();
                 right.generateCode(mv, cf);
                 String rightDesc = right.getExitTypeDescriptor();
                 CodeFlow.insertBigDecimalCoercion(mv, rightDesc);
                 cf.exitCompilationScope();
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal", "add","(Ljava/math/BigDecimal;)Ljava/math/BigDecimal;", false);
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal", "add", "(Ljava/math/BigDecimal;)Ljava/math/BigDecimal;", false);
                 cf.pushDescriptor(this.exitTypeDescriptor);
             }
         } else {

@@ -6,7 +6,8 @@ import org.bvvy.yel.parser.YelExpressionParser;
 import org.bvvy.yel.parser.YelParserConfig;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,15 +20,15 @@ public class TestGenerateCode {
     @Test
     public void testGenerateCode() {
         YelParserConfig yelParserConfig = new YelParserConfig(YelCompilerMode.IMMEDIATE);
-//        yelParserConfig.setUseBigDecimalForFloat(true);
+        yelParserConfig.setUseBigDecimalForFloat(true);
         YelExpressionParser parser = new YelExpressionParser(yelParserConfig);
         Map<String, Object> env = new HashMap<>();
-        env.put("a", new BigDecimal("1.1"));
-        env.put("b", 2);
-        YelExpression ex1 = parser.parse("a + 1.1f");
         Context context = new Context(env);
+        YelExpression ex1 = parser.parse("1.1 + 1.1");
+        LocalDateTime start = LocalDateTime.now();
         System.out.println(ex1.getValue(context));
         System.out.println(ex1.getValue(context));
+        System.out.println(start.until(LocalDateTime.now(), ChronoUnit.MILLIS));
 
     }
 }
