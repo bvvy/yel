@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.bvvy.yel.exp.ast.Node;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.util.TraceClassVisitor;
 
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -41,7 +43,8 @@ public class YelCompiler {
         String className = "yel/Ex" + getNextSuffix();
         String contextClass = "org/bvvy/yel/context/Context";
         String parentClassName = "org/bvvy/yel/exp/CompiledExpression";
-        ClassWriter cw = new ExpressionClassWriter();
+        ClassWriter cx = new ExpressionClassWriter();
+        TraceClassVisitor cw = new TraceClassVisitor(cx, new PrintWriter(System.out));
 
         cw.visit(V1_8, ACC_PUBLIC, className, null, parentClassName, null);
 
@@ -74,7 +77,7 @@ public class YelCompiler {
         mv.visitEnd();
         cw.visitEnd();
 
-        byte[] data = cw.toByteArray();
+        byte[] data = cx.toByteArray();
 
         return loadClass(className.replaceAll("/", "."), data);
 
