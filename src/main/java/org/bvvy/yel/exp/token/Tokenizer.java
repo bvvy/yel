@@ -123,14 +123,14 @@ public class Tokenizer {
                         if (isTwoCharToken(TokenKind.SYMBOLIC_AND)) {
                             pushPairToken(TokenKind.SYMBOLIC_AND);
                         } else {
-//                            pushCharToken(TokenKind.);
+                            pushCharToken(TokenKind.BIT_AND);
                         }
                         break;
                     case '|':
                         if (!isTwoCharToken(TokenKind.SYMBOLIC_OR)) {
                             raiseParseException(this.pos);
                         }
-                        pushPairToken(TokenKind.SYMBOLIC_OR);
+                        pushPairToken(TokenKind.BIT_OR);
                         break;
                     case '?':
                         if (isTwoCharToken(TokenKind.ELVIS)) {

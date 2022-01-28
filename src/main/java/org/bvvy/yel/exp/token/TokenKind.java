@@ -9,7 +9,6 @@ public enum TokenKind {
     LITERAL_REAL_FLOAT,
     LITERAL_REAL,
     LITERAL_STRING,
-    LITERAL_DECIMAL,
     BIT_AND("&"),
     BIT_OR("|"),
     BIT_XOR("^"),
@@ -44,7 +43,6 @@ public enum TokenKind {
     LE("<="),
     LT("<"),
     ASSIGN("=");
-//    POWER("^");
 
     final char[] tokenChars;
     private final boolean hasPayload;
