@@ -20,6 +20,7 @@ public class BytecodeDescriptorConverterService {
         add(new BytecodeDescriptorKey("I", "F"), mv -> mv.visitInsn(Opcodes.I2F));
         add(new BytecodeDescriptorKey("I", "J"), mv -> mv.visitInsn(Opcodes.I2L));
         add(new BytecodeDescriptorKey("I", "Ljava/lang/Object"), mv -> mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false));
+        add(new BytecodeDescriptorKey("I", "Ljava/lang/Comparable"), mv -> mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false));
         add(new BytecodeDescriptorKey("I", "Ljava/math/BigDecimal"), mv -> {
             mv.visitTypeInsn(Opcodes.NEW, "java/math/BigDecimal");// 1,ref ->
             mv.visitInsn(Opcodes.DUP_X1); //ref | 1 | ref |  ->
@@ -31,6 +32,7 @@ public class BytecodeDescriptorConverterService {
         add(new BytecodeDescriptorKey("J", "F"), mv -> mv.visitInsn(Opcodes.L2F));
         add(new BytecodeDescriptorKey("J", "I"), mv -> mv.visitInsn(Opcodes.L2I));
         add(new BytecodeDescriptorKey("J", "Ljava/lang/Object"), mv -> mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false));
+        add(new BytecodeDescriptorKey("J", "Ljava/lang/Comparable"), mv -> mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false));
         add(new BytecodeDescriptorKey("J", "Ljava/math/BigDecimal"), mv -> {
             mv.visitTypeInsn(Opcodes.NEW, "java/math/BigDecimal");// _,_,ref ->
             mv.visitInsn(Opcodes.DUP_X2); //ref | _ | _ | ref |  ->
@@ -44,6 +46,7 @@ public class BytecodeDescriptorConverterService {
         add(new BytecodeDescriptorKey("D", "I"), mv -> mv.visitInsn(Opcodes.D2I));
         add(new BytecodeDescriptorKey("D", "J"), mv -> mv.visitInsn(Opcodes.D2L));
         add(new BytecodeDescriptorKey("D", "Ljava/lang/Object"), mv -> mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false));
+        add(new BytecodeDescriptorKey("D", "Ljava/lang/Comparable"), mv -> mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false));
         add(new BytecodeDescriptorKey("D", "Ljava/math/BigDecimal"), mv -> {
             mv.visitTypeInsn(Opcodes.NEW, "java/math/BigDecimal");// _,_,ref ->
             mv.visitInsn(Opcodes.DUP_X2); //ref | _ | _ | ref |  ->
@@ -56,6 +59,7 @@ public class BytecodeDescriptorConverterService {
         add(new BytecodeDescriptorKey("F", "I"), mv -> mv.visitInsn(Opcodes.F2I));
         add(new BytecodeDescriptorKey("F", "J"), mv -> mv.visitInsn(Opcodes.F2L));
         add(new BytecodeDescriptorKey("F", "Ljava/lang/Object"), mv -> mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false));
+        add(new BytecodeDescriptorKey("F", "Ljava/lang/Comparable"), mv -> mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false));
         add(new BytecodeDescriptorKey("F", "Ljava/math/BigDecimal"), mv -> {
             mv.visitTypeInsn(Opcodes.NEW, "java/math/BigDecimal");// 1.1,ref ->
             mv.visitInsn(Opcodes.DUP_X1); //ref | 1.1 | ref |  ->
@@ -82,6 +86,9 @@ public class BytecodeDescriptorConverterService {
         });
         add(new BytecodeDescriptorKey("Ljava/lang/Object", "Ljava/math/BigDecimal"), mv -> {
             mv.visitTypeInsn(Opcodes.CHECKCAST, "java/math/BigDecimal");
+        });
+        add(new BytecodeDescriptorKey("Ljava/lang/Object", "Ljava/lang/Comparable"), mv -> {
+            mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Comparable");
         });
 
     }
