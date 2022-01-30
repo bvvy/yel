@@ -31,6 +31,7 @@ public class OpDivide extends Operator {
                 BigDecimal leftBigDecimal = NumberUtils.convertNumberToTargetClass(leftNumber, BigDecimal.class);
                 BigDecimal rightBigDecimal = NumberUtils.convertNumberToTargetClass(rightNumber, BigDecimal.class);
                 int scale = Math.max(leftBigDecimal.scale(), rightBigDecimal.scale());
+                this.exitTypeDescriptor = "Ljava/math/BigDecimal";
                 return new TypedValue(leftBigDecimal.divide(rightBigDecimal, scale, RoundingMode.HALF_UP));
             } else if (leftNumber instanceof Double || rightNumber instanceof Double) {
                 this.exitTypeDescriptor = "D";
@@ -74,27 +75,43 @@ public class OpDivide extends Operator {
         left.generateCode(mv, cf);
         String leftDesc = left.getExitTypeDescriptor();
         String exitDesc = this.exitTypeDescriptor;
-        char targetDesc = exitDesc.charAt(0);
-        CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, leftDesc, targetDesc);
+        cf.insertDescriptorConversion(mv, leftDesc, exitDesc);
+        if ("Ljava/math/BigDecimal".equals(exitDesc)) {
+            mv.visitVarInsn(Opcodes.ASTORE, 3);
+        }
         if (this.children.length > 1) {
             cf.enterCompilationScope();
             Node right = getRightOperand();
             right.generateCode(mv, cf);
             String rightDesc = right.getExitTypeDescriptor();
             cf.exitCompilationScope();
-            CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, rightDesc, targetDesc);
-            switch (targetDesc) {
-                case 'I':
+            cf.insertDescriptorConversion(mv, rightDesc, exitDesc);
+            if ("Ljava/math/BigDecimal".equals(exitDesc)) {
+                mv.visitVarInsn(Opcodes.ASTORE, 4);
+            }
+            switch (exitDesc) {
+                case "I":
                     mv.visitInsn(Opcodes.IDIV);
                     break;
-                case 'J':
+                case "J":
                     mv.visitInsn(Opcodes.LDIV);
                     break;
-                case 'F':
+                case "F":
                     mv.visitInsn(Opcodes.FDIV);
                     break;
-                case 'D':
+                case "D":
                     mv.visitInsn(Opcodes.DDIV);
+                    break;
+                case "Ljava/math/BigDecimal":
+                    mv.visitVarInsn(Opcodes.ALOAD, 3);
+                    mv.visitVarInsn(Opcodes.ALOAD, 4);
+                    mv.visitVarInsn(Opcodes.ALOAD, 3);
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal", "scale", "()I", false);
+                    mv.visitVarInsn(Opcodes.ALOAD, 4);
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal", "scale", "()I", false);
+                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Math", "max", "(II)I", false);
+                    mv.visitFieldInsn(Opcodes.GETSTATIC, "java/math/RoundingMode", "HALF_UP", "Ljava/math/RoundingMode;");
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal", "divide", "(Ljava/math/BigDecimal;ILjava/math/RoundingMode;)Ljava/math/BigDecimal;", false);
                     break;
                 default:
                     throw new IllegalStateException("unknown exit type");

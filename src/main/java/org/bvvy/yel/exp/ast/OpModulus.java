@@ -29,6 +29,7 @@ public class OpModulus extends Operator {
             if (leftNumber instanceof BigDecimal || rightNumber instanceof BigDecimal) {
                 BigDecimal leftBigDecimal = NumberUtils.convertNumberToTargetClass(leftNumber, BigDecimal.class);
                 BigDecimal rightBigDecimal = NumberUtils.convertNumberToTargetClass(rightNumber, BigDecimal.class);
+                this.exitTypeDescriptor = "Ljava/math/BigDecimal";
                 return new TypedValue(leftBigDecimal.remainder(rightBigDecimal));
             } else if (leftNumber instanceof Double || rightNumber instanceof Double) {
                 this.exitTypeDescriptor = "D";
@@ -72,27 +73,29 @@ public class OpModulus extends Operator {
         left.generateCode(mv, cf);
         String leftDesc = left.getExitTypeDescriptor();
         String exitDesc = this.exitTypeDescriptor;
-        char targetDesc = exitDesc.charAt(0);
-        CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, leftDesc, targetDesc);
+        cf.insertDescriptorConversion(mv, leftDesc, exitDesc);
         if (this.children.length > 1) {
             cf.enterCompilationScope();
             Node right = getRightOperand();
             right.generateCode(mv, cf);
             String rightDesc = right.getExitTypeDescriptor();
             cf.exitCompilationScope();
-            CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, rightDesc, targetDesc);
-            switch (targetDesc) {
-                case 'I':
+            cf.insertDescriptorConversion(mv, rightDesc, exitDesc);
+            switch (exitDesc) {
+                case "I":
                     mv.visitInsn(Opcodes.IREM);
                     break;
-                case 'J':
+                case "J":
                     mv.visitInsn(Opcodes.LREM);
                     break;
-                case 'F':
+                case "F":
                     mv.visitInsn(Opcodes.FREM);
                     break;
-                case 'D':
+                case "D":
                     mv.visitInsn(Opcodes.DREM);
+                    break;
+                case "Ljava/math/BigDecimal":
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal", "remainder", "(Ljava/math/BigDecimal;)Ljava/math/BigDecimal;", false);
                     break;
                 default:
                     throw new IllegalStateException("unknown exit type");
