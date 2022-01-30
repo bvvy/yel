@@ -1,5 +1,7 @@
 package org.bvvy.yel.exp;
 
+import org.bvvy.yel.exp.converter.BytecodeDescriptorConverter;
+import org.bvvy.yel.exp.converter.BytecodeDescriptorConverterService;
 import org.bvvy.yel.util.CollectionUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -14,11 +16,17 @@ import java.util.*;
 public class CodeFlow {
 
     private final Deque<List<String>> compilationScopes;
-//    private final BytecodeDescriptorConverter bytecodeDescriptorConverter;
+    private final BytecodeDescriptorConverterService converterService;
 
     public CodeFlow(String className, ClassVisitor cv) {
         this.compilationScopes = new ArrayDeque<>();
         this.compilationScopes.add(new ArrayList<>());
+        this.converterService = new BytecodeDescriptorConverterService();
+    }
+
+
+    public void insertDescriptorConversion(MethodVisitor mv, String stackDescriptor, String targetDescriptor) {
+        converterService.convert(stackDescriptor, targetDescriptor, mv);
     }
 
     public static void insertNumericUnboxOrPrimitiveTypeCoercion(MethodVisitor mv, String stackDescriptor, char targetDescriptor) {
