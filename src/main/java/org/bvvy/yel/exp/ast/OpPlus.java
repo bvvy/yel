@@ -98,47 +98,34 @@ public class OpPlus extends Operator {
             walk(mv, cf, getLeftOperand());
             walk(mv, cf, getRightOperand());
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
-        } else if ("Ljava/math/BigDecimal".equals(this.exitTypeDescriptor)) {
-            Node left = getLeftOperand();
-            left.generateCode(mv, cf);
-            String leftDesc = left.getExitTypeDescriptor();
-            CodeFlow.insertBigDecimalCoercion(mv, leftDesc);
-            if (this.children.length > 1) {
-                cf.enterCompilationScope();
-                Node right = getRightOperand();
-                right.generateCode(mv, cf);
-                String rightDesc = right.getExitTypeDescriptor();
-                CodeFlow.insertBigDecimalCoercion(mv, rightDesc);
-                cf.exitCompilationScope();
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal", "add", "(Ljava/math/BigDecimal;)Ljava/math/BigDecimal;", false);
-                cf.pushDescriptor(this.exitTypeDescriptor);
-            }
         } else {
             Node left = getLeftOperand();
             left.generateCode(mv, cf);
             String leftDesc = left.getExitTypeDescriptor();
             String exitDesc = this.exitTypeDescriptor;
-            char targetDesc = exitDesc.charAt(0);
-            CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, leftDesc, targetDesc);
+            cf.insertDescriptorConversion(mv, leftDesc, exitDesc);
             if (this.children.length > 1) {
                 cf.enterCompilationScope();
                 Node right = getRightOperand();
                 right.generateCode(mv, cf);
                 String rightDesc = right.getExitTypeDescriptor();
                 cf.exitCompilationScope();
-                CodeFlow.insertNumericUnboxOrPrimitiveTypeCoercion(mv, rightDesc, targetDesc);
-                switch (targetDesc) {
-                    case 'I':
+                cf.insertDescriptorConversion(mv, rightDesc, exitDesc);
+                switch (exitDesc) {
+                    case "I":
                         mv.visitInsn(Opcodes.IADD);
                         break;
-                    case 'J':
+                    case "J":
                         mv.visitInsn(Opcodes.LADD);
                         break;
-                    case 'F':
+                    case "F":
                         mv.visitInsn(Opcodes.FADD);
                         break;
-                    case 'D':
+                    case "D":
                         mv.visitInsn(Opcodes.DADD);
+                        break;
+                    case "Ljava/math/BigDecimal":
+                        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal", "add", "(Ljava/math/BigDecimal;)Ljava/math/BigDecimal;", false);
                         break;
                     default:
                         throw new IllegalStateException("unknown exit type");

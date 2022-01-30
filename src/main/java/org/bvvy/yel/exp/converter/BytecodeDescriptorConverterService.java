@@ -3,11 +3,12 @@ package org.bvvy.yel.exp.converter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class BytecodeDescriptorConverterService {
 
-    Map<BytecodeDescriptorKey, BytecodeDescriptorConverter> converters;
+    Map<BytecodeDescriptorKey, BytecodeDescriptorConverter> converters= new HashMap<>();
 
     public BytecodeDescriptorConverterService(Map<BytecodeDescriptorKey, BytecodeDescriptorConverter> converters) {
         this.converters = converters;
@@ -87,7 +88,10 @@ public class BytecodeDescriptorConverterService {
 
     public void convert(String sourceDescriptor, String targetDescriptor, MethodVisitor mv) {
         BytecodeDescriptorKey bytecodeDescriptorKey = new BytecodeDescriptorKey(sourceDescriptor, targetDescriptor);
-        converters.get(bytecodeDescriptorKey).convert(mv);
+        BytecodeDescriptorConverter converter = converters.get(bytecodeDescriptorKey);
+        if (converter != null) {
+            converter.convert(mv);
+        }
     }
 
     public void add(BytecodeDescriptorKey bytecodeDescriptorKey, BytecodeDescriptorConverter bytecodeDescriptorConverter) {
