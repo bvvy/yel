@@ -15,6 +15,8 @@ public class Context {
 
     private List<MethodResolver> methodResolvers;
 
+    private TypeConverter typeConverter;
+
     public Context(Object rootObject) {
         this.rootObject = new TypedValue(rootObject);
         this.propertyAccessors = new ArrayList<>();
@@ -35,5 +37,9 @@ public class Context {
 
     public List<MethodResolver> getMethodResolvers() {
         return this.methodResolvers;
+    }
+
+    public TypeConverter getTypeConverter() {
+        return typeConverter;
     }
 }
