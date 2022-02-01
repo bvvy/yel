@@ -86,6 +86,16 @@ public class TestGenerateCode {
         Assertions.assertEquals(v1, v2);
         Assertions.assertEquals(v2, v3);
 
+        ex1 = parser.parse("2 >= 2");
+        v1 = ex1.getValue(context);
+        System.out.println(v1);
+        v2 = ex1.getValue(context);
+        System.out.println(v2);
+        v3 = ex1.getValue(context);
+        System.out.println(v3);
+        Assertions.assertEquals(v1, v2);
+        Assertions.assertEquals(v2, v3);
+
         ex1 = parser.parse("2 == 2");
         v1 = ex1.getValue(context);
         System.out.println(v1);
@@ -95,6 +105,7 @@ public class TestGenerateCode {
         System.out.println(v3);
         Assertions.assertEquals(v1, v2);
         Assertions.assertEquals(v2, v3);
+
 
 
         ex1 = parser.parse("2.5 != 2");
