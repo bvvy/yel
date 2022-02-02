@@ -5,7 +5,7 @@ import org.bvvy.yel.context.MethodExecutor;
 import org.bvvy.yel.context.MethodResolver;
 import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.ExpressionState;
-import org.bvvy.yel.exp.TypeDescriptor;
+import org.bvvy.yel.convert.TypeDescriptor;
 import org.bvvy.yel.exp.TypedValue;
 
 import java.util.List;

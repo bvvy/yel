@@ -1,12 +1,22 @@
 package org.bvvy.yel.context;
 
-import org.bvvy.yel.exp.TypeDescriptor;
+import org.bvvy.yel.convert.MethodParameter;
+import org.bvvy.yel.convert.ReflectionHelper;
+import org.bvvy.yel.convert.TypeDescriptor;
+import org.bvvy.yel.exception.YelEvaluationException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class ReflectiveMethodResolver implements MethodResolver {
+
+    private final boolean useDistance;
+
+    public ReflectiveMethodResolver() {
+        this.useDistance = true;
+    }
+
     @Override
     public MethodExecutor resolve(Context context, Object targetObject, String name, List<TypeDescriptor> argumentTypes) {
         TypeConverter typeConverter = context.getTypeConverter();
@@ -30,18 +40,58 @@ public class ReflectiveMethodResolver implements MethodResolver {
         }
         Set<Method> methodsToIterate = new LinkedHashSet<>(methods);
 
+        Method closeMatch = null;
+        int closeMatchDistance = Integer.MAX_VALUE;
+        Method matchRequiringConversion = null;
+        boolean multipleOptions = false;
+
         for (Method method : methodsToIterate) {
             if (method.getName().equals(name)) {
                 int paramCount = method.getParameterCount();
                 List<TypeDescriptor> paramDescriptors = new ArrayList<>(paramCount);
                 for (int i = 0; i < paramCount; i++) {
-                    paramDescriptors.add(new TypeDescriptor());
+                    paramDescriptors.add(new TypeDescriptor(new MethodParameter(method, i)));
+                }
+                ReflectionHelper.ArgumentsMatchInfo matchInfo = null;
+                if (method.isVarArgs() && argumentTypes.size() >= (paramCount - 1)) {
+                    matchInfo = ReflectionHelper.compareArgumentsVarargs(paramDescriptors, argumentTypes, typeConverter);
+                } else if (paramCount == argumentTypes.size()) {
+                    matchInfo = ReflectionHelper.compareArguments(paramDescriptors, argumentTypes, typeConverter);
+                }
+                if (matchInfo != null) {
+                    if (matchInfo.isExactMatch()) {
+                        return new ReflectiveMethodExecutor(method);
+                    } else if (matchInfo.isCloseMatch()) {
+                        if (this.useDistance) {
+                            int matchDistance = ReflectionHelper.getTypeDifferenceWeight(paramDescriptors, argumentTypes);
+                            if (closeMatch == null || matchDistance < closeMatchDistance) {
+                                closeMatch = method;
+                                closeMatchDistance = matchDistance;
+                            }
+                        } else {
+                            if (closeMatch == null) {
+                                closeMatch = method;
+                            }
+                        }
+                    } else if (matchInfo.isMatchRequiringConversion()) {
+                        if (matchRequiringConversion != null) {
+                            multipleOptions = true;
+                        }
+                        matchRequiringConversion = method;
+                    }
                 }
             }
         }
-
-
-        return null;
+        if (closeMatch != null) {
+            return new ReflectiveMethodExecutor(closeMatch);
+        } else if (matchRequiringConversion != null) {
+            if (multipleOptions) {
+                throw new YelEvaluationException();
+            }
+            return new ReflectiveMethodExecutor(matchRequiringConversion);
+        } else {
+            return null;
+        }
     }
 
     private Set<Method> getMethods(Class<?> type, Object targetObject) {
