@@ -10,6 +10,7 @@ public class MethodParameter {
     private final int parameterIndex;
     public Map<Integer, Integer> typeIndexesPerLevel;
     private int nestingLevel;
+    private Class<?> containingClass;
 
     public MethodParameter(Method method, int parameterIndex) {
         this(method, parameterIndex, 1);
@@ -25,8 +26,9 @@ public class MethodParameter {
         return nestingLevel;
     }
 
-    public Class<?> getContainingClass() {
-        return null;
+    public Class<?>  getContainingClass() {
+        Class<?> containingClass = this.containingClass;
+        return (containingClass != null ? containingClass : getDeclaringClass());
     }
 
     public Class<?> getDeclaringClass() {
@@ -34,7 +36,7 @@ public class MethodParameter {
     }
 
     public Class<?> getNestedParameterType() {
-        return null;
+        return this.executable.getDeclaringClass();
     }
 
     private Type getGenericParameterType() {

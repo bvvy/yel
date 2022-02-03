@@ -27,7 +27,6 @@ public class ResolvableType {
 
     public static ResolvableType forMethodParameter(MethodParameter methodParameter, Type targetType, int nestingLevel) {
         return forType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
-//        return forType(targetType, new MethodParameterTypeProvider(),owner.asVariableResolver()).getNested(nestingLevel, methodParameter.typeIndexesPerLevel);
     }
 
     private ResolvableType getNested(int nestingLevel, Map<Integer, Integer> typeIndexesPerLevel) {
