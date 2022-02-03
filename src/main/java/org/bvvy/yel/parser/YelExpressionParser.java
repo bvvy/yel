@@ -92,15 +92,44 @@ public class YelExpressionParser {
     }
 
     private Node eatLogicalAndExpression() {
-        Node expr = eatRelationalExpression();
+        Node expr = eatBitXorExpression();
         while (peekToken(TokenKind.SYMBOLIC_AND)) {
             Token t = takeToken();
-            Node rhExpr = eatRelationalExpression();
+            Node rhExpr = eatBitXorExpression();
             expr = new OpAnd(t.getStartPos(), t.getEndPos(), expr, rhExpr);
         }
         return expr;
     }
 
+    private Node eatBitXorExpression() {
+        Node expr = eatBitOrExpression();
+        while (peekToken(TokenKind.BIT_XOR)) {
+            Token t = takeToken();
+            Node rhExpr = eatBitOrExpression();
+            expr = new OpBitXor(t.getStartPos(), t.getEndPos(), expr, rhExpr);
+        }
+        return expr;
+    }
+
+    private Node eatBitOrExpression() {
+        Node expr = eatBitAndExpression();
+        while (peekToken(TokenKind.BIT_OR)) {
+            Token t = takeToken();
+            Node rhExpr = eatBitAndExpression();
+            expr = new OpBitOr(t.getStartPos(), t.getEndPos(), expr, rhExpr);
+        }
+        return expr;
+    }
+
+    private Node eatBitAndExpression() {
+        Node expr = eatRelationalExpression();
+        while (peekToken(TokenKind.BIT_AND)) {
+            Token t = takeToken();
+            Node rhExpr = eatRelationalExpression();
+            expr = new OpBitAnd(t.getStartPos(), t.getEndPos(), expr, rhExpr);
+        }
+        return expr;
+    }
     private Node eatRelationalExpression() {
         Node expr = eatSumExpression();
         if (peekToken(TokenKind.GT, TokenKind.LT, TokenKind.LE)
@@ -160,11 +189,6 @@ public class YelExpressionParser {
 
     private Node eatPowerIncDecExpression() {
         Node expr = eatUnaryExpression();
-//        if (peekToken(TokenKind.POWER)) {
-//            Token t = takeToken();
-//            Node rhExpr = eatUnaryExpression();
-//            return new OperatorPower(t.getStartPos(), t.getEndPos(), expr, rhExpr);
-//        }
         if (expr != null && peekToken(TokenKind.INC, TokenKind.DEC)) {
             Token t = takeToken();
             if (t.getKind() == TokenKind.INC) {

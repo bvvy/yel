@@ -74,6 +74,16 @@ public class TestYelExpressionParser {
     }
 
     @Test
+    public void testBit() {
+        Node node = parse("1 & 1");
+        Assertions.assertEquals(OpBitAnd.class, node.getClass());
+        node = parse("1 | 1");
+        Assertions.assertEquals(OpBitOr.class, node.getClass());
+        node = parse("1 ^ 1");
+        Assertions.assertEquals(OpBitXor.class, node.getClass());
+    }
+
+    @Test
     public void testAssign() {
 
         Node node = parse("a=1");

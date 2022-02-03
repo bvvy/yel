@@ -127,10 +127,11 @@ public class Tokenizer {
                         }
                         break;
                     case '|':
-                        if (!isTwoCharToken(TokenKind.SYMBOLIC_OR)) {
-                            raiseParseException(this.pos);
+                        if (isTwoCharToken(TokenKind.SYMBOLIC_OR)) {
+                            pushPairToken(TokenKind.SYMBOLIC_OR);
+                        } else {
+                            pushPairToken(TokenKind.BIT_OR);
                         }
-                        pushPairToken(TokenKind.BIT_OR);
                         break;
                     case '?':
                         if (isTwoCharToken(TokenKind.ELVIS)) {
