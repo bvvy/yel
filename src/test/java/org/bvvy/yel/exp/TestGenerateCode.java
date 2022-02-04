@@ -2,7 +2,7 @@ package org.bvvy.yel.exp;
 
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.parser.YelCompilerMode;
-import org.bvvy.yel.parser.YelExpressionParser;
+import org.bvvy.yel.parser.YelParser;
 import org.bvvy.yel.parser.YelParserConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ public class TestGenerateCode {
     public void testGenerateCodeOperator() {
         YelParserConfig yelParserConfig = new YelParserConfig(YelCompilerMode.IMMEDIATE);
         yelParserConfig.setUseBigDecimalForFloat(true);
-        YelExpressionParser parser = new YelExpressionParser(yelParserConfig);
+        YelParser parser = new YelParser(yelParserConfig);
         Map<String, Object> env = new HashMap<>();
         Context context = new Context(env);
         YelExpression ex1 = parser.parse("1.1 + 1.1 + 1");
@@ -55,7 +55,7 @@ public class TestGenerateCode {
 
         YelParserConfig yelParserConfig = new YelParserConfig(YelCompilerMode.IMMEDIATE);
         yelParserConfig.setUseBigDecimalForFloat(true);
-        YelExpressionParser parser = new YelExpressionParser(yelParserConfig);
+        YelParser parser = new YelParser(yelParserConfig);
         Map<String, Object> env = new HashMap<>();
         Context context = new Context(env);
         YelExpression ex1 = parser.parse("2 <= 2");
@@ -124,7 +124,7 @@ public class TestGenerateCode {
 
         YelParserConfig yelParserConfig = new YelParserConfig(YelCompilerMode.IMMEDIATE);
         yelParserConfig.setUseBigDecimalForFloat(false);
-        YelExpressionParser parser = new YelExpressionParser(yelParserConfig);
+        YelParser parser = new YelParser(yelParserConfig);
         Map<String, Object> env = new HashMap<>();
         env.put("a", 1);
         env.put("b", 1);

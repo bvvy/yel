@@ -4,7 +4,7 @@ package org.bvvy.yel;
 import org.bvvy.yel.config.YelConfig;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.exp.YelExpression;
-import org.bvvy.yel.parser.YelExpressionParser;
+import org.bvvy.yel.parser.YelParser;
 
 /**
  * @author bvvy
@@ -33,8 +33,8 @@ public class Yel {
 
 
     public Object eval(String expression, Context context) {
-        YelExpressionParser yelExpressionParser = new YelExpressionParser(yelConfig.getYelParserConfig());
-        YelExpression exp = yelExpressionParser.parse(expression);
+        YelParser yelParser = new YelParser(yelConfig.getYelParserConfig());
+        YelExpression exp = yelParser.parse(expression);
         return exp.getValue(context);
     }
 }

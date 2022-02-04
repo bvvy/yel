@@ -12,7 +12,7 @@ public class Tokenizer {
 
     public static final byte IS_DIGIT = 0x01;
     public static final byte IS_HEXDIGIT = 0x02;
-    private static final byte[] FLAGS = new byte[256];
+    protected static final byte[] FLAGS = new byte[256];
 
     static {
         for (int ch = '0'; ch <= '9'; ch++) {
@@ -26,11 +26,11 @@ public class Tokenizer {
         }
     }
 
-    private String expressionString;
-    private char[] charsToProcess;
-    private int max;
-    private int pos;
-    private List<Token> tokens = new ArrayList<>();
+    protected String expressionString;
+    protected char[] charsToProcess;
+    protected int max;
+    protected int pos;
+    protected List<Token> tokens = new ArrayList<>();
 
     public Tokenizer(String expression) {
         this.expressionString = expression;
@@ -191,7 +191,7 @@ public class Tokenizer {
 
     }
 
-    private void lexDoubleQuotedStringLiteral() {
+    protected void lexDoubleQuotedStringLiteral() {
         int start = this.pos;
         boolean terminated = false;
         while (!terminated) {
@@ -213,7 +213,7 @@ public class Tokenizer {
         this.tokens.add(new Token(TokenKind.LITERAL_STRING, subarray(start, this.pos), start, this.pos));
     }
 
-    private void lexQuotedStringLiteral() {
+    protected void lexQuotedStringLiteral() {
         int start = this.pos;
         boolean terminated = false;
         while (!terminated) {
@@ -235,15 +235,15 @@ public class Tokenizer {
         this.tokens.add(new Token(TokenKind.LITERAL_STRING, subarray(start, this.pos), start, this.pos));
     }
 
-    private void raiseParseException(int start) {
+    protected void raiseParseException(int start) {
         throw new IllegalStateException("语法错误在: " + start);
     }
 
-    private boolean isExhausted() {
+    protected boolean isExhausted() {
         return (this.pos == this.max - 1);
     }
 
-    private void lexNumberLiteral(boolean firstCharIsZero) {
+    protected void lexNumberLiteral(boolean firstCharIsZero) {
         boolean isReal = false;
         int start = this.pos;
         char ch = this.charsToProcess[this.pos + 1];
@@ -329,23 +329,23 @@ public class Tokenizer {
 
     }
 
-    private boolean isSign(char ch) {
+    protected boolean isSign(char ch) {
         return ch == '+' || ch == '-';
     }
 
-    private boolean isExponentChar(char ch) {
+    protected boolean isExponentChar(char ch) {
         return ch == 'e' || ch == 'E';
     }
 
-    private boolean isDoubleSuffix(char ch) {
+    protected boolean isDoubleSuffix(char ch) {
         return ch == 'd' || ch == 'D';
     }
 
-    private boolean isFloatSuffix(char ch) {
+    protected boolean isFloatSuffix(char ch) {
         return ch == 'f' || ch == 'F';
     }
 
-    private void pushRealToken(char[] data, boolean isFloat, int start, int end) {
+    protected void pushRealToken(char[] data, boolean isFloat, int start, int end) {
         if (isFloat) {
             this.tokens.add(new Token(TokenKind.LITERAL_REAL_FLOAT, data, start, end));
         } else {
@@ -353,7 +353,7 @@ public class Tokenizer {
         }
     }
 
-    private void pushIntToken(char[] data, boolean isLong, int start, int end) {
+    protected void pushIntToken(char[] data, boolean isLong, int start, int end) {
         if (isLong) {
             this.tokens.add(new Token(TokenKind.LITERAL_LONG, data, start, end));
         } else {
@@ -361,7 +361,7 @@ public class Tokenizer {
         }
     }
 
-    private void pushHexIntToken(char[] data, boolean isLong, int start, int end) {
+    protected void pushHexIntToken(char[] data, boolean isLong, int start, int end) {
         if (isLong) {
             this.tokens.add(new Token(TokenKind.LITERAL_HEXLONG, data, start, end));
         } else {
@@ -369,52 +369,52 @@ public class Tokenizer {
         }
     }
 
-    private boolean isChar(char a, char b) {
+    protected boolean isChar(char a, char b) {
         char ch = this.charsToProcess[this.pos];
         return ch == a || ch == b;
     }
 
-    private boolean isDigit(char ch) {
+    protected boolean isDigit(char ch) {
         if (ch > 255) {
             return false;
         }
         return (FLAGS[ch] & IS_DIGIT) != 0;
     }
 
-    private boolean isHexadecimalDigit(char ch) {
+    protected boolean isHexadecimalDigit(char ch) {
         if (ch > 255) {
             return false;
         }
         return (FLAGS[ch] & IS_HEXDIGIT) != 0;
     }
 
-    private boolean isIdentifierStart(char ch) {
+    protected boolean isIdentifierStart(char ch) {
         return '\0' != ch && Character.isJavaIdentifierStart(ch);
     }
 
-    private boolean isIdentifier(char ch) {
+    protected boolean isIdentifier(char ch) {
         return '\0' != ch && Character.isJavaIdentifierPart(ch);
     }
 
-    private void pushCharToken(TokenKind kind) {
+    protected void pushCharToken(ITokenKind kind) {
         this.tokens.add(new Token(kind, this.pos, this.pos + 1));
         this.pos++;
     }
 
-    private void pushPairToken(TokenKind kind) {
+    protected void pushPairToken(ITokenKind kind) {
         this.tokens.add(new Token(kind, this.pos, this.pos + 2));
         this.pos += 2;
 
     }
 
-    private boolean isTwoCharToken(TokenKind kind) {
+    protected boolean isTwoCharToken(ITokenKind kind) {
         return (kind.getLength() == 2)
-                && this.charsToProcess[this.pos] == kind.tokenChars[0]
-                && this.charsToProcess[this.pos + 1] == kind.tokenChars[1];
+                && this.charsToProcess[this.pos] == kind.getTokenChars()[0]
+                && this.charsToProcess[this.pos + 1] == kind.getTokenChars()[1];
 
     }
 
-    private void lexIdentifier() {
+    protected void lexIdentifier() {
         int start = this.pos;
         do {
             this.pos++;
@@ -424,7 +424,7 @@ public class Tokenizer {
         this.tokens.add(new Token(TokenKind.IDENTIFIER, subarray, start, this.pos));
     }
 
-    private char[] subarray(int start, int end) {
+    protected char[] subarray(int start, int end) {
         return Arrays.copyOfRange(this.charsToProcess, start, end);
     }
 

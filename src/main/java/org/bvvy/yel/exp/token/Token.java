@@ -7,23 +7,23 @@ package org.bvvy.yel.exp.token;
  */
 public class Token {
 
-    private TokenKind kind;
+    private ITokenKind kind;
     private final int startPos;
     private final int endPos;
 
-    public TokenKind getKind() {
+    public ITokenKind getKind() {
         return kind;
     }
 
     private String data;
 
-    public Token(TokenKind kind, int startPos, int endPos) {
+    public Token(ITokenKind kind, int startPos, int endPos) {
         this.kind = kind;
         this.startPos = startPos;
         this.endPos = endPos;
     }
 
-    public Token(TokenKind kind, char[] tokenData, int startPos, int endPos) {
+    public Token(ITokenKind kind, char[] tokenData, int startPos, int endPos) {
         this(kind, startPos, endPos);
         this.data = new String(tokenData);
     }
