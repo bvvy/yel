@@ -9,7 +9,11 @@ import org.objectweb.asm.Opcodes;
 
 public class OpNE extends Operator {
     public OpNE(int startPos, int endPos, Node ... operand) {
-        super("!=", startPos, endPos, operand);
+        this("!=", startPos, endPos, operand);
+    }
+
+    public OpNE(String payload, int startPos, int endPos, Node... operands) {
+        super(payload, startPos, endPos, operands);
         this.exitTypeDescriptor = "Z";
     }
 
