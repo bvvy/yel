@@ -6,8 +6,10 @@ import java.util.Map;
 
 public class ResolvableType {
 
+
     public static final ResolvableType NONE = new ResolvableType(EmptyType.INSTANCE, null, null,0);
     private static final ResolvableType[] EMPTY_TYPES_ARRAY = new ResolvableType[0];
+    private Type type;
 
     private ResolvableType[] interfaces;
 
@@ -15,6 +17,11 @@ public class ResolvableType {
 
     public ResolvableType(Type instance, Object o, Object o1, int i) {
 
+    }
+
+    public ResolvableType(Class<?> clazz) {
+        this.resolved = (clazz != null ? clazz : Object.class);
+        this.type = this.resolved;
     }
 
     public static ResolvableType forMethodParameter(MethodParameter methodParameter) {
@@ -27,6 +34,10 @@ public class ResolvableType {
 
     public static ResolvableType forMethodParameter(MethodParameter methodParameter, Type targetType, int nestingLevel) {
         return forType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
+    }
+
+    public static ResolvableType forClass(Class<?> clazz) {
+        return new ResolvableType(clazz);
     }
 
     private ResolvableType getNested(int nestingLevel, Map<Integer, Integer> typeIndexesPerLevel) {
@@ -84,6 +95,10 @@ public class ResolvableType {
 
     public Class<?> resolve(Object nestedParameterType) {
         return null;
+    }
+
+    public Class<?> toClass() {
+        return resolve(Object.class);
     }
 
     static class EmptyType implements Type, Serializable {
