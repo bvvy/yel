@@ -9,7 +9,11 @@ import org.objectweb.asm.Opcodes;
 
 public class OpEQ extends Operator {
     public OpEQ(int startPos, int endPos, Node... operand) {
-        super("==", startPos, endPos, operand);
+        this("==", startPos, endPos, operand);
+    }
+
+    public OpEQ(String payload, int startPos, int endPos, Node... operand) {
+        super(payload, startPos, endPos, operand);
         this.exitTypeDescriptor = "Z";
     }
 

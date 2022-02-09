@@ -1,15 +1,15 @@
 package org.bvvy.yel.exp;
 
 import org.bvvy.yel.exp.ast.*;
-import org.bvvy.yel.parser.YelExpressionParser;
+import org.bvvy.yel.parser.YelParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestYelExpressionParser {
+public class TestYelParser {
 
     public Node parse(String expression) {
-        YelExpressionParser yelExpressionParser = new YelExpressionParser();
-        YelExpression yeExpr = yelExpressionParser.parse(expression);
+        YelParser yelParser = new YelParser();
+        YelExpression yeExpr = yelParser.parse(expression);
         return yeExpr.getAst();
     }
 
@@ -71,6 +71,16 @@ public class TestYelExpressionParser {
         node = parse("1 || 1");
         Assertions.assertEquals(OpOr.class, node.getClass());
 
+    }
+
+    @Test
+    public void testBit() {
+        Node node = parse("1 & 1");
+        Assertions.assertEquals(OpBitAnd.class, node.getClass());
+        node = parse("1 | 1");
+        Assertions.assertEquals(OpBitOr.class, node.getClass());
+        node = parse("1 ^ 1");
+        Assertions.assertEquals(OpBitXor.class, node.getClass());
     }
 
     @Test

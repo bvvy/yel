@@ -2,6 +2,7 @@ package org.bvvy.yel.parser;
 
 import org.bvvy.yel.exp.YelExpression;
 import org.bvvy.yel.exp.ast.*;
+import org.bvvy.yel.exp.token.ITokenKind;
 import org.bvvy.yel.exp.token.Token;
 import org.bvvy.yel.exp.token.TokenKind;
 import org.bvvy.yel.exp.token.Tokenizer;
@@ -16,22 +17,23 @@ import java.util.List;
  * @author bvvy
  * @date 2021/11/22
  */
-public class YelExpressionParser {
+public class YelParser implements Parser {
 
-    private List<Token> tokenStream;
-    private int tokenStreamPointer;
-    private int tokenStreamLength;
-    private Deque<Node> constructedNodes = new ArrayDeque<>();
-    private YelParserConfig configuration;
+    protected List<Token> tokenStream;
+    protected int tokenStreamPointer;
+    protected int tokenStreamLength;
+    protected Deque<Node> constructedNodes = new ArrayDeque<>();
+    protected YelParserConfig configuration;
 
-    public YelExpressionParser() {
+    public YelParser() {
         this.configuration = new YelParserConfig();
     }
 
-    public YelExpressionParser(YelParserConfig configuration) {
+    public YelParser(YelParserConfig configuration) {
         this.configuration = configuration;
     }
 
+    @Override
     public YelExpression parse(String expression) {
         Tokenizer tokenizer = new Tokenizer(expression);
         List<Token> tokens = tokenizer.process();
@@ -43,7 +45,7 @@ public class YelExpressionParser {
         return new YelExpression(ast, this.configuration);
     }
 
-    private Node eatExpression() {
+    protected Node eatExpression() {
         Node expr = eatLogicalOrExpression();
         Token t = peekToken();
         if (t != null) {
@@ -81,7 +83,7 @@ public class YelExpressionParser {
         return expr;
     }
 
-    private Node eatLogicalOrExpression() {
+    protected Node eatLogicalOrExpression() {
         Node expr = eatLogicalAndExpression();
         while (peekToken(TokenKind.SYMBOLIC_OR)) {
             Token t = takeToken();
@@ -91,23 +93,53 @@ public class YelExpressionParser {
         return expr;
     }
 
-    private Node eatLogicalAndExpression() {
-        Node expr = eatRelationalExpression();
+    protected Node eatLogicalAndExpression() {
+        Node expr = eatBitXorExpression();
         while (peekToken(TokenKind.SYMBOLIC_AND)) {
             Token t = takeToken();
-            Node rhExpr = eatRelationalExpression();
+            Node rhExpr = eatBitXorExpression();
             expr = new OpAnd(t.getStartPos(), t.getEndPos(), expr, rhExpr);
         }
         return expr;
     }
 
-    private Node eatRelationalExpression() {
+    protected Node eatBitXorExpression() {
+        Node expr = eatBitOrExpression();
+        while (peekToken(TokenKind.BIT_XOR)) {
+            Token t = takeToken();
+            Node rhExpr = eatBitOrExpression();
+            expr = new OpBitXor(t.getStartPos(), t.getEndPos(), expr, rhExpr);
+        }
+        return expr;
+    }
+
+    protected Node eatBitOrExpression() {
+        Node expr = eatBitAndExpression();
+        while (peekToken(TokenKind.BIT_OR)) {
+            Token t = takeToken();
+            Node rhExpr = eatBitAndExpression();
+            expr = new OpBitOr(t.getStartPos(), t.getEndPos(), expr, rhExpr);
+        }
+        return expr;
+    }
+
+    protected Node eatBitAndExpression() {
+        Node expr = eatRelationalExpression();
+        while (peekToken(TokenKind.BIT_AND)) {
+            Token t = takeToken();
+            Node rhExpr = eatRelationalExpression();
+            expr = new OpBitAnd(t.getStartPos(), t.getEndPos(), expr, rhExpr);
+        }
+        return expr;
+    }
+
+    protected Node eatRelationalExpression() {
         Node expr = eatSumExpression();
         if (peekToken(TokenKind.GT, TokenKind.LT, TokenKind.LE)
                 || peekToken(TokenKind.GE, TokenKind.EQ, TokenKind.NE)) {
             Token t = takeToken();
             Node rhExpr = eatSumExpression();
-            TokenKind tk = t.getKind();
+            ITokenKind tk = t.getKind();
 
             if (tk == TokenKind.GT) {
                 return new OpGT(t.getStartPos(), t.getEndPos(), expr, rhExpr);
@@ -127,7 +159,7 @@ public class YelExpressionParser {
 
     }
 
-    private Node eatSumExpression() {
+    protected Node eatSumExpression() {
         Node expr = eatProductExpression();
         while (peekToken(TokenKind.PLUS, TokenKind.MINUS, TokenKind.INC)) {
             Token t = takeToken();
@@ -142,11 +174,11 @@ public class YelExpressionParser {
         return expr;
     }
 
-    private Node eatProductExpression() {
-        Node expr = eatPowerIncDecExpression();
+    protected Node eatProductExpression() {
+        Node expr = eatIncDecExpression();
         while (peekToken(TokenKind.STAR, TokenKind.DIV, TokenKind.MOD)) {
             Token t = takeToken();
-            Node rhExpr = eatPowerIncDecExpression();
+            Node rhExpr = eatIncDecExpression();
             if (t.getKind() == TokenKind.STAR) {
                 expr = new OpMultiply(t.getStartPos(), t.getEndPos(), expr, rhExpr);
             } else if (t.getKind() == TokenKind.DIV) {
@@ -158,13 +190,8 @@ public class YelExpressionParser {
         return expr;
     }
 
-    private Node eatPowerIncDecExpression() {
+    protected Node eatIncDecExpression() {
         Node expr = eatUnaryExpression();
-//        if (peekToken(TokenKind.POWER)) {
-//            Token t = takeToken();
-//            Node rhExpr = eatUnaryExpression();
-//            return new OperatorPower(t.getStartPos(), t.getEndPos(), expr, rhExpr);
-//        }
         if (expr != null && peekToken(TokenKind.INC, TokenKind.DEC)) {
             Token t = takeToken();
             if (t.getKind() == TokenKind.INC) {
@@ -175,7 +202,7 @@ public class YelExpressionParser {
         return expr;
     }
 
-    private Node eatUnaryExpression() {
+    protected Node eatUnaryExpression() {
         if (peekToken(TokenKind.PLUS, TokenKind.MINUS, TokenKind.NOT)) {
             Token t = takeToken();
             Node expr = eatUnaryExpression();
@@ -197,7 +224,7 @@ public class YelExpressionParser {
         return eatPrimaryExpression();
     }
 
-    private Node eatPrimaryExpression() {
+    protected Node eatPrimaryExpression() {
         Node start = eatStartNode();
         List<Node> nodes = null;
         Node node = eatNode();
@@ -218,11 +245,11 @@ public class YelExpressionParser {
         );
     }
 
-    private Node eatNode() {
+    protected Node eatNode() {
         return peekToken(TokenKind.DOT, TokenKind.SAFE_NAVI) ? eatDottedNode() : eatNonDottedNode();
     }
 
-    private Node eatNonDottedNode() {
+    protected Node eatNonDottedNode() {
         if (peekToken(TokenKind.LSQUARE)) {
             if (maybeEatIndexer()) {
                 return pop();
@@ -231,7 +258,7 @@ public class YelExpressionParser {
         return null;
     }
 
-    private boolean maybeEatIndexer() {
+    protected boolean maybeEatIndexer() {
         Token t = peekToken();
         if (!peekToken(TokenKind.LSQUARE, true)) {
             return false;
@@ -242,7 +269,7 @@ public class YelExpressionParser {
         return true;
     }
 
-    private Node eatDottedNode() {
+    protected Node eatDottedNode() {
         Token t = takeToken();
         boolean nullSafeNavigation = t.getKind() == TokenKind.SAFE_NAVI;
         if (maybeEatMethodProperty(nullSafeNavigation)) {
@@ -252,7 +279,7 @@ public class YelExpressionParser {
         return null;
     }
 
-    private boolean maybeEatMethodProperty(boolean nullSafeNavigation) {
+    protected boolean maybeEatMethodProperty(boolean nullSafeNavigation) {
         if (peekToken(TokenKind.IDENTIFIER)) {
             Token methodOrPropertyName = takeToken();
             Node[] args = maybeEatMethodArgs();
@@ -268,7 +295,7 @@ public class YelExpressionParser {
         return false;
     }
 
-    private Node[] maybeEatMethodArgs() {
+    protected Node[] maybeEatMethodArgs() {
 
         if (!peekToken(TokenKind.LPAREN)) {
             return null;
@@ -280,7 +307,7 @@ public class YelExpressionParser {
 
     }
 
-    private void consumeArguments(List<Node> accumulatedArguments) {
+    protected void consumeArguments(List<Node> accumulatedArguments) {
         Token t = peekToken();
         int pos = t.getStartPos();
         Token next;
@@ -301,7 +328,7 @@ public class YelExpressionParser {
         }
     }
 
-    private Node eatStartNode() {
+    protected Node eatStartNode() {
         if (maybeEatLiteral()) {
             return pop();
         } else if (maybeEatParenExpression()) {
@@ -313,7 +340,7 @@ public class YelExpressionParser {
         return null;
     }
 
-    private boolean maybeEatParenExpression() {
+    protected boolean maybeEatParenExpression() {
         if (peekToken(TokenKind.LPAREN)) {
             nextToken();
             Node expr = eatExpression();
@@ -325,7 +352,7 @@ public class YelExpressionParser {
         }
     }
 
-    private Token eatToken(TokenKind expectedKind) {
+    protected Token eatToken(TokenKind expectedKind) {
         Token t = nextToken();
         if (t == null) {
         }
@@ -336,7 +363,7 @@ public class YelExpressionParser {
 
     }
 
-    private boolean maybeEatLiteral() {
+    protected boolean maybeEatLiteral() {
         Token t = peekToken();
         if (t == null) {
             return false;
@@ -374,7 +401,7 @@ public class YelExpressionParser {
         return true;
     }
 
-    private boolean peekIdentifierToken(String identifierString) {
+    protected boolean peekIdentifierToken(String identifierString) {
         Token t = peekToken();
         if (t == null) {
             return false;
@@ -383,36 +410,36 @@ public class YelExpressionParser {
                 && identifierString.equalsIgnoreCase(t.stringValue());
     }
 
-    private void push(Node node) {
+    protected void push(Node node) {
         this.constructedNodes.push(node);
     }
 
-    private Node pop() {
+    protected Node pop() {
         return this.constructedNodes.pop();
     }
 
-    private Token nextToken() {
+    protected Token nextToken() {
         if (this.tokenStreamPointer >= this.tokenStreamLength) {
             return null;
         }
         return this.tokenStream.get(this.tokenStreamPointer++);
     }
 
-    private Token takeToken() {
+    protected Token takeToken() {
         if (this.tokenStreamPointer >= this.tokenStreamLength) {
             throw new IllegalStateException("No token");
         }
         return this.tokenStream.get(this.tokenStreamPointer++);
     }
 
-    private Token peekToken() {
+    protected Token peekToken() {
         if (this.tokenStreamPointer >= this.tokenStreamLength) {
             return null;
         }
         return tokenStream.get(this.tokenStreamPointer);
     }
 
-    private boolean peekToken(TokenKind token) {
+    protected boolean peekToken(ITokenKind token) {
 
         Token t = peekToken();
         if (t == null) {
@@ -421,7 +448,7 @@ public class YelExpressionParser {
         return t.getKind() == token;
     }
 
-    private boolean peekToken(TokenKind desiredTokenKind, boolean consumeIfMatched) {
+    protected boolean peekToken(ITokenKind desiredTokenKind, boolean consumeIfMatched) {
         Token t = peekToken();
         if (t == null) {
             return false;
@@ -432,17 +459,10 @@ public class YelExpressionParser {
             }
             return true;
         }
-        if (desiredTokenKind == TokenKind.IDENTIFIER) {
-            if (t.getKind().ordinal() >= TokenKind.DIV.ordinal()
-                    && t.getKind().ordinal() <= TokenKind.NOT.ordinal()
-                    && t.getData() != null) {
-                return true;
-            }
-        }
         return false;
     }
 
-    private boolean peekToken(TokenKind possible1, TokenKind possible2) {
+    protected boolean peekToken(ITokenKind possible1, ITokenKind possible2) {
         Token t = peekToken();
         if (t == null) {
             return false;
@@ -452,7 +472,7 @@ public class YelExpressionParser {
     }
 
 
-    private boolean peekToken(TokenKind possible1, TokenKind possible2, TokenKind possible3) {
+    protected boolean peekToken(ITokenKind possible1, ITokenKind possible2, ITokenKind possible3) {
         Token t = peekToken();
         if (t == null) {
             return false;

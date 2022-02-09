@@ -1,6 +1,6 @@
 package org.bvvy.yel.exp.token;
 
-public enum TokenKind {
+public enum TokenKind implements ITokenKind {
     IDENTIFIER,
     LITERAL_HEXLONG,
     LITERAL_HEXINT,
@@ -58,5 +58,10 @@ public enum TokenKind {
 
     public int getLength() {
         return tokenChars.length;
+    }
+
+    @Override
+    public char[] getTokenChars() {
+        return tokenChars;
     }
 }
