@@ -1,5 +1,6 @@
 package org.bvvy.yel.convert;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -22,11 +23,15 @@ public class MethodParameter {
         this.parameterIndex = parameterIndex;
     }
 
+    public static MethodParameter forExecutable(Executable executable, int i) {
+        return null;
+    }
+
     public int getNestingLevel() {
         return nestingLevel;
     }
 
-    public Class<?>  getContainingClass() {
+    public Class<?> getContainingClass() {
         Class<?> containingClass = this.containingClass;
         return (containingClass != null ? containingClass : getDeclaringClass());
     }

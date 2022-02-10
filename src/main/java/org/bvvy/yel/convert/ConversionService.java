@@ -7,4 +7,6 @@ package org.bvvy.yel.convert;
 public interface ConversionService {
 
     boolean canConvert(TypeDescriptor sourceType, TypeDescriptor targetType);
+
+    Object convert(Object value, TypeDescriptor sourceType, TypeDescriptor targetType);
 }

@@ -1,7 +1,10 @@
 package org.bvvy.yel.context;
 
+import org.bvvy.yel.convert.MethodParameter;
 import org.bvvy.yel.convert.TypeDescriptor;
 
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class ReflectionHelper {
@@ -91,6 +94,57 @@ public class ReflectionHelper {
 
     public static int getTypeDifferenceWeight(List<TypeDescriptor> paramDescriptors, List<TypeDescriptor> argumentTypes) {
         return 0;
+    }
+
+    public static boolean convertArguments(TypeConverter converter, Object[] arguments, Executable executable, Integer varargsPosition) {
+        boolean conversionOccurred = false;
+        if (varargsPosition == null) {
+            for (int i = 0; i < arguments.length; i++) {
+                TypeDescriptor targetType = new TypeDescriptor(MethodParameter.forExecutable(executable, i));
+                Object argument = arguments[i];
+                arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
+                conversionOccurred |= (argument != arguments[i]);
+            }
+        } else {
+            for (int i = 0; i < varargsPosition; i++) {
+                TypeDescriptor targetType = new TypeDescriptor(MethodParameter.forExecutable(executable, i));
+                Object argument = arguments[i];
+                arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
+                conversionOccurred |= (argument != arguments[i]);
+            }
+            MethodParameter methodParam = MethodParameter.forExecutable(executable, varargsPosition);
+            if (varargsPosition == arguments.length - 1) {
+                Object argument = arguments[varargsPosition];
+                TypeDescriptor targetType = new TypeDescriptor(methodParam);
+                TypeDescriptor sourceType = TypeDescriptor.forObject(argument);
+
+                if (!sourceType.equals(targetType.getElementTypeDescriptor())) {
+                    arguments[varargsPosition] = converter.convertValue(argument, sourceType, targetType);
+                }
+
+                if (argument != arguments[varargsPosition]
+                        && !isFirstEntryInArray(argument, arguments[varargsPosition])) {
+                    conversionOccurred = true;
+                }
+            } else {
+                TypeDescriptor targetType = new TypeDescriptor(methodParam).getElementTypeDescriptor();
+
+                for (int i = varargsPosition; i < arguments.length; i++) {
+                    Object argument = arguments[i];
+                    arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
+                    conversionOccurred |= (argument != arguments[i]);
+                }
+            }
+        }
+        return conversionOccurred;
+    }
+
+    private static boolean isFirstEntryInArray(Object argument, Object argument1) {
+        return false;
+    }
+
+    public static Object[] setupArgumentsForVarargsInvocation(Class<?>[] parameterTypes, Object[] arguments) {
+        return new Object[0];
     }
 
     public enum ArgumentsMatchKind {

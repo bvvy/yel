@@ -21,5 +21,8 @@ public class StandardTypeConverter implements TypeConverter {
         return this.conversionService.canConvert(sourceType, targetType);
     }
 
-
+    @Override
+    public Object convertValue(Object value, TypeDescriptor sourceType, TypeDescriptor targetType) {
+        return this.conversionService.convert(value, sourceType, targetType);
+    }
 }

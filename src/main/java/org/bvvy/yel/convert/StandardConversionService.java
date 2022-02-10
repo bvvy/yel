@@ -49,4 +49,8 @@ public class StandardConversionService implements ConversionService {
         return (sourceType.isAssignableTo(targetType) ? NO_OP_CONVERTER : null);
     }
 
+    @Override
+    public Object convert(Object value, TypeDescriptor sourceType, TypeDescriptor targetType) {
+        return null;
+    }
 }
