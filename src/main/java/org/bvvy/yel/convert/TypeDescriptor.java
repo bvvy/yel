@@ -1,11 +1,11 @@
 package org.bvvy.yel.convert;
 
+import org.bvvy.yel.util.ClassUtils;
 import org.bvvy.yel.util.ObjectUtils;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author bvvy
@@ -13,7 +13,18 @@ import java.util.Objects;
  */
 public class TypeDescriptor {
 
+    private static final Class<?>[] CACHED_COMMON_TYPES = {
+            boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
+            short.class, Short.class, int.class, Integer.class, float.class, Float.class,
+            long.class, Long.class, double.class, Double.class, String.class, Object.class
+    };
     private static Map<Class<?>, TypeDescriptor> commonTypesCache = new HashMap<>(32);
+
+    static {
+        for (Class<?> preCachedClass : CACHED_COMMON_TYPES) {
+            commonTypesCache.put(preCachedClass, valueOf(preCachedClass));
+        }
+    }
 
     private final ResolvableType resolvableType;
     private final Class<?> type;
@@ -28,8 +39,8 @@ public class TypeDescriptor {
         this.type = (type != null ? type : resolvableType.toClass());
     }
 
-    public static TypeDescriptor forObject(Object value) {
-        return null;
+    public static TypeDescriptor forObject(Object source) {
+        return (source != null ? valueOf(source.getClass()) : null);
     }
 
     public static TypeDescriptor valueOf(Class<?> type) {
@@ -108,8 +119,8 @@ public class TypeDescriptor {
         return false;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(resolvableType);
+    public Class<?> getObjectType() {
+        return ClassUtils.resolvePrimitiveIfNecessary(getType());
     }
+
 }

@@ -1,11 +1,11 @@
 package org.bvvy.yel.convert;
 
-import org.bvvy.yel.convert.converter.ConverterCacheKey;
-import org.bvvy.yel.convert.converter.GenericConverter;
-import org.bvvy.yel.convert.converter.NoOpConverter;
+import org.bvvy.yel.convert.converter.*;
+import org.bvvy.yel.convert.support.NumberToNumberConverterFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author bvvy
@@ -17,6 +17,37 @@ public class StandardConversionService implements ConversionService {
     private static final GenericConverter NO_OP_CONVERTER = new NoOpConverter("NO_OP");
     private final Converters converters = new Converters();
     private Map<ConverterCacheKey, GenericConverter> converterCache = new HashMap<>();
+
+    public StandardConversionService() {
+        addDefaultConverters(this);
+    }
+
+    public static void addDefaultConverters(StandardConversionService converterRegistry) {
+        converterRegistry.addConverterFactory(new NumberToNumberConverterFactory());
+    }
+
+    public void addConverterFactory(ConverterFactory<?, ?> factory) {
+        ResolvableType[] typeInfo = getRequiredTypeInfo(factory.getClass(), ConverterFactory.class);
+        addConverter(new ConverterFactoryAdapter(factory, new ConvertiblePair(typeInfo[0].toClass(), typeInfo[1].toClass())));
+    }
+
+    public void addConverter(ConverterFactoryAdapter converterFactoryAdapter) {
+
+    }
+
+    private ResolvableType[] getRequiredTypeInfo(Class<?> converterClass, Class<?> genericIfc) {
+        ResolvableType resolvableType = ResolvableType.forClass(converterClass).as(genericIfc);
+        ResolvableType[] generics = resolvableType.getGenerics();
+        if (generics.length < 2) {
+            return null;
+        }
+        Class<?> sourceType = generics[0].resolve();
+        Class<?> targetType = generics[1].resolve();
+        if (sourceType == null || targetType == null) {
+            return null;
+        }
+        return generics;
+    }
 
     @Override
     public boolean canConvert(TypeDescriptor sourceType, TypeDescriptor targetType) {
@@ -50,7 +81,37 @@ public class StandardConversionService implements ConversionService {
     }
 
     @Override
-    public Object convert(Object value, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+
+        if (sourceType == null) {
+            return handleResult(null, targetType, convertNullSource(null, targetType));
+        }
+        if (source != null && !sourceType.getObjectType().isInstance(source)) {
+
+        }
+        GenericConverter converter = getConverter(sourceType, targetType);
+        if (converter != null) {
+            Object result = converter.convert(source, sourceType, targetType);
+            return handleResult(sourceType, targetType, result);
+        }
+        return handleConverterNotFound(source, sourceType, targetType);
+    }
+
+    private Object handleConverterNotFound(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+        return null;
+    }
+
+    private Object handleResult(TypeDescriptor sourceType, TypeDescriptor targetType, Object result) {
+        if (result == null) {
+//            assertNotPrimitiveTargetType(sourceType, targetType);
+        }
+        return result;
+    }
+
+    private Object convertNullSource(TypeDescriptor sourceType, TypeDescriptor targetType) {
+        if (targetType.getObjectType() == Optional.class) {
+            return Optional.empty();
+        }
         return null;
     }
 }

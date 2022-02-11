@@ -1,4 +1,4 @@
 package org.bvvy.yel.convert;
 
-public class MethodParameterTypeProvider {
+public class MethodParameterTypeProvider implements TypeProvider {
 }
