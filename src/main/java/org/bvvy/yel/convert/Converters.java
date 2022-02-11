@@ -87,4 +87,19 @@ public class Converters {
         }
 
     }
+
+    public void add(GenericConverter converter) {
+        Set<ConvertiblePair> convertibleTypes = converter.getConvertibleTypes();
+        if (convertibleTypes == null) {
+            this.globalConverters.add(converter);
+        } else {
+            for (ConvertiblePair convertiblePair : convertibleTypes) {
+                getMatchableConverters(convertiblePair).add(converter);
+            }
+        }
+    }
+
+    private ConvertersForPair getMatchableConverters(ConvertiblePair convertiblePair) {
+        return this.converters.computeIfAbsent(convertiblePair, k -> new ConvertersForPair());
+    }
 }

@@ -3,9 +3,7 @@ package org.bvvy.yel.convert;
 import org.bvvy.yel.convert.converter.*;
 import org.bvvy.yel.convert.support.NumberToNumberConverterFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author bvvy
@@ -31,8 +29,8 @@ public class StandardConversionService implements ConversionService {
         addConverter(new ConverterFactoryAdapter(factory, new ConvertiblePair(typeInfo[0].toClass(), typeInfo[1].toClass())));
     }
 
-    public void addConverter(ConverterFactoryAdapter converterFactoryAdapter) {
-
+    public void addConverter(GenericConverter converter) {
+        this.converters.add(converter);
     }
 
     private ResolvableType[] getRequiredTypeInfo(Class<?> converterClass, Class<?> genericIfc) {
@@ -114,4 +112,29 @@ public class StandardConversionService implements ConversionService {
         }
         return null;
     }
+
+    @SuppressWarnings("unchecked")
+    public final class ConverterFactoryAdapter implements GenericConverter {
+        private ConverterFactory<Object, Object> converterFactory;
+        private ConvertiblePair typeInfo;
+
+        public ConverterFactoryAdapter(ConverterFactory<?, ?> converterFactory, ConvertiblePair typeInfo) {
+            this.converterFactory = (ConverterFactory<Object, Object> ) converterFactory;
+            this.typeInfo = typeInfo;
+        }
+
+        @Override
+        public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+            if (source == null) {
+                return convertNullSource(sourceType, targetType);
+            }
+            return this.converterFactory.getConverter(targetType.getObjectType()).convert(source);
+        }
+
+        @Override
+        public Set<ConvertiblePair> getConvertibleTypes() {
+            return Collections.singleton(typeInfo);
+        }
+    }
+
 }

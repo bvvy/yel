@@ -36,10 +36,23 @@ public class Context {
     }
 
     public List<MethodResolver> getMethodResolvers() {
-        return this.methodResolvers;
+        return initMethodResolvers();
+    }
+
+    private List<MethodResolver> initMethodResolvers() {
+        List<MethodResolver> resolvers = this.methodResolvers;
+        if (resolvers == null) {
+            resolvers = new ArrayList<>(1);
+            resolvers.add(new ReflectiveMethodResolver());
+            this.methodResolvers = resolvers;
+        }
+        return resolvers;
     }
 
     public TypeConverter getTypeConverter() {
+        if (this.typeConverter == null) {
+            this.typeConverter = new StandardTypeConverter();
+        }
         return typeConverter;
     }
 }

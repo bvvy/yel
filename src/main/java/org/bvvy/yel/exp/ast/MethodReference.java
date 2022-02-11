@@ -8,6 +8,8 @@ import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.convert.TypeDescriptor;
 import org.bvvy.yel.exp.TypedValue;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -61,8 +63,12 @@ public class MethodReference extends NodeImpl {
         return null;
     }
 
-    private List<TypeDescriptor> getArgumentTypes(Object[] arguments) {
-        return null;
+    private List<TypeDescriptor> getArgumentTypes(Object ... arguments) {
+        List<TypeDescriptor> descriptors = new ArrayList<>(arguments.length);
+        for (Object argument : arguments) {
+            descriptors.add(TypeDescriptor.forObject(argument));
+        }
+        return Collections.unmodifiableList(descriptors);
     }
 
     public Object[] getArguments(ExpressionState state) {

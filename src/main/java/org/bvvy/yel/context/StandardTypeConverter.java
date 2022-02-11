@@ -1,6 +1,7 @@
 package org.bvvy.yel.context;
 
 import org.bvvy.yel.convert.ConversionService;
+import org.bvvy.yel.convert.StandardConversionService;
 import org.bvvy.yel.convert.TypeDescriptor;
 
 /**
@@ -15,6 +16,9 @@ public class StandardTypeConverter implements TypeConverter {
         this.conversionService = conversionService;
     }
 
+    public StandardTypeConverter() {
+        this.conversionService = new StandardConversionService();
+    }
 
     @Override
     public boolean canConvert(TypeDescriptor sourceType, TypeDescriptor targetType) {

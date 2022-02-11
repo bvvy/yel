@@ -51,4 +51,11 @@ public class TestYel {
         Object result = yel.eval("a[1]", env);
         Assertions.assertEquals(200, result);
     }
+
+    @Test
+    public void testMethod() {
+        Yel yel = new Yel();
+        Object result = yel.eval("say('Lee')", new Tester());
+        Assertions.assertEquals(200, result);
+    }
 }
