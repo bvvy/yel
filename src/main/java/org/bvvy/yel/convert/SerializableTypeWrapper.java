@@ -7,7 +7,8 @@ import java.lang.reflect.Type;
  * @date 2022/2/8
  */
 public class SerializableTypeWrapper {
-    public static Type forTypeProvider(TypeProvider typeProvider) {
+    public static Type forTypeProvider(TypeProvider provider) {
+        Type providedType = provider.getType();
         return null;
     }
 }

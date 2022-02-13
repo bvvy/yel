@@ -26,6 +26,9 @@ public class StandardConversionService implements ConversionService {
 
     public void addConverterFactory(ConverterFactory<?, ?> factory) {
         ResolvableType[] typeInfo = getRequiredTypeInfo(factory.getClass(), ConverterFactory.class);
+        if (typeInfo == null) {
+            throw new IllegalArgumentException();
+        }
         addConverter(new ConverterFactoryAdapter(factory, new ConvertiblePair(typeInfo[0].toClass(), typeInfo[1].toClass())));
     }
 

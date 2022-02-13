@@ -74,7 +74,7 @@ public class MethodReference extends NodeImpl {
     public Object[] getArguments(ExpressionState state) {
         Object[] arguments = new Object[getChildCount()];
         for (int i = 0; i < arguments.length; i++) {
-            arguments[i] = children[i].getValueInternal(state);
+            arguments[i] = children[i].getValueInternal(state).getValue();
         }
         return arguments;
     }

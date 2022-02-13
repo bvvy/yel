@@ -70,7 +70,10 @@ public class ResolvableType {
     }
 
     public static ResolvableType forMethodParameter(MethodParameter methodParameter, Type targetType, int nestingLevel) {
-        return forType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
+        ResolvableType owner = forType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
+        return forType(targetType, new MethodParameterTypeProvider(methodParameter), owner.asVariableResolver())
+                .getNested(nestingLevel, methodParameter.typeIndexesPerLevel);
+
     }
 
     public static ResolvableType forClass(Class<?> clazz) {
@@ -170,7 +173,49 @@ public class ResolvableType {
     }
 
     public ResolvableType getNested(int nestingLevel, Map<Integer, Integer> typeIndexesPerLevel) {
-        return null;
+        ResolvableType result = this;
+        for (int i = 2; i <= nestingLevel; i++) {
+            if (result.isArray()) {
+                result = result.getComponentType();
+            } else {
+                while (result != ResolvableType.NONE && !result.hasGenerics()) {
+                    result = result.getSuperType();
+                }
+                Integer index = (typeIndexesPerLevel != null ? typeIndexesPerLevel.get(i) : null);
+                index = (index == null ? result.getGenerics().length - 1 : index);
+                result = result.getGenerics(index);
+            }
+        }
+        return result;
+    }
+
+    private ResolvableType getGenerics(int... indexes) {
+        ResolvableType[] generics = getGenerics();
+        if (indexes == null || indexes.length == 0) {
+            return (generics.length == 0 ? NONE : generics[0]);
+        }
+        ResolvableType generic = this;
+        for (int index : indexes) {
+            generics =generic.getGenerics();
+            if (index < 0 || index >= generics.length) {
+                return NONE;
+            }
+            generic = generics[index];
+        }
+        return generic;
+    }
+
+    private boolean hasGenerics() {
+        return (getGenerics().length > 0);
+    }
+
+    private boolean isArray() {
+        if (this == NONE) {
+            return false;
+        }
+        return (this.type instanceof Class && ((Class<?>) this.type).isArray())
+                || this.type instanceof GenericArrayType
+                || resolveType().isArray();
     }
 
     public VariableResolver asVariableResolver() {

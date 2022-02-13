@@ -32,6 +32,7 @@ public class TypeDescriptor {
     public TypeDescriptor(MethodParameter methodParameter) {
         this.resolvableType = ResolvableType.forMethodParameter(methodParameter);
         this.type = this.resolvableType.resolve(methodParameter.getNestedParameterType());
+        // todo annotation
     }
 
     public TypeDescriptor(ResolvableType resolvableType, Class<?> type, Annotation[] annotations) {
