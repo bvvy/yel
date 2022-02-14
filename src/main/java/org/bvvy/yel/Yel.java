@@ -13,13 +13,16 @@ import org.bvvy.yel.parser.YelParser;
 public class Yel {
 
     private YelConfig yelConfig;
+    private YelParser yelParser;
 
     public Yel(YelConfig yelConfig) {
         this.yelConfig = yelConfig;
+        this.yelParser = new YelParser(yelConfig.getYelParserConfig());
     }
 
     public Yel() {
         this.yelConfig = new YelConfig();
+        this.yelParser = new YelParser(yelConfig.getYelParserConfig());
     }
 
     public Object eval(String expression) {
@@ -33,7 +36,6 @@ public class Yel {
 
 
     public Object eval(String expression, Context context) {
-        YelParser yelParser = new YelParser(yelConfig.getYelParserConfig());
         YelExpression exp = yelParser.parse(expression);
         return exp.getValue(context);
     }
