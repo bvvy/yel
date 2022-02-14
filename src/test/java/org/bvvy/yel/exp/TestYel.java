@@ -56,6 +56,6 @@ public class TestYel {
     public void testMethod() {
         Yel yel = new Yel();
         Object result = yel.eval("say('Lee')", new Tester());
-        Assertions.assertEquals(200, result);
+        Assertions.assertEquals("Hi Lee, I am Tester", result);
     }
 }

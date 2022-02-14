@@ -6,9 +6,9 @@ package org.bvvy.yel.exp;
  */
 public class Tester {
 
-    String name = "tester";
+    String name = "Tester";
 
-    public void say(String name) {
-        System.out.println("Hi " + name + "I AM " + this.name);
+    public String say(String name) {
+        return "Hi " + name + ", I am " + this.name;
     }
 }

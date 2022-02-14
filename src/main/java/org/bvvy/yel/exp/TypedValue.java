@@ -16,6 +16,11 @@ public class TypedValue {
         this.value = value;
     }
 
+    public TypedValue(Object value, TypeDescriptor typeDescriptor) {
+        this.value = value;
+        this.typeDescriptor = typeDescriptor;
+    }
+
     public Object getValue() {
         return this.value;
     }

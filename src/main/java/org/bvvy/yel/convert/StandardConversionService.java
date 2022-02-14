@@ -88,7 +88,8 @@ public class StandardConversionService implements ConversionService {
             return handleResult(null, targetType, convertNullSource(null, targetType));
         }
         if (source != null && !sourceType.getObjectType().isInstance(source)) {
-
+            throw new IllegalArgumentException("Source to convert from must be an instance of [" +
+                    sourceType + "]; instead it was a [" + source.getClass().getName() + "]");
         }
         GenericConverter converter = getConverter(sourceType, targetType);
         if (converter != null) {
@@ -122,7 +123,7 @@ public class StandardConversionService implements ConversionService {
         private ConvertiblePair typeInfo;
 
         public ConverterFactoryAdapter(ConverterFactory<?, ?> converterFactory, ConvertiblePair typeInfo) {
-            this.converterFactory = (ConverterFactory<Object, Object> ) converterFactory;
+            this.converterFactory = (ConverterFactory<Object, Object>) converterFactory;
             this.typeInfo = typeInfo;
         }
 

@@ -1,9 +1,7 @@
 package org.bvvy.yel.convert;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MethodParameter {
@@ -14,6 +12,7 @@ public class MethodParameter {
     private int nestingLevel;
     private Class<?> containingClass;
     private Type genericParameterType;
+    private Class<?> parameterType;
 
     public MethodParameter(Method method, int parameterIndex) {
         this(method, parameterIndex, 1);
@@ -25,8 +24,26 @@ public class MethodParameter {
         this.parameterIndex = parameterIndex;
     }
 
-    public static MethodParameter forExecutable(Executable executable, int i) {
-        return null;
+    public MethodParameter(Constructor<?> constructor, int parameterIndex) {
+        this(constructor, parameterIndex, 1);
+    }
+
+    public MethodParameter(Constructor<?> constructor, int parameterIndex, int nestingLevel) {
+        this.executable = constructor;
+        this.parameterIndex = parameterIndex;
+        this.nestingLevel = nestingLevel;
+    }
+
+
+
+    public static MethodParameter forExecutable(Executable executable, int parameterIndex) {
+        if (executable instanceof Method) {
+            return new MethodParameter((Method) executable, parameterIndex);
+        } else if (executable instanceof Constructor) {
+            return new MethodParameter((Constructor<?>) executable, parameterIndex);
+        } else {
+            throw new IllegalArgumentException("Not a Method/Constructor: " + executable);
+        }
     }
 
     public int getNestingLevel() {
@@ -43,7 +60,53 @@ public class MethodParameter {
     }
 
     public Class<?> getNestedParameterType() {
-        return this.executable.getDeclaringClass();
+        if (this.nestingLevel > 1) {
+            Type type = getGenericParameterType();
+            for (int i = 2; i < this.nestingLevel; i++) {
+                if (type instanceof ParameterizedType) {
+                    Type[] args = ((ParameterizedType) type).getActualTypeArguments();
+                    Integer index = getTypeIndexForLevel(i);
+                    type = args[index != null ? index : args.length - 1];
+                }
+            }
+            if (type instanceof Class) {
+                return ((Class<?>) type);
+            } else if (type instanceof ParameterizedType) {
+                Type arg = ((ParameterizedType) type).getRawType();
+                if (arg instanceof Class) {
+                    return ((Class<?>) arg);
+                }
+            }
+            return Object.class;
+        } else {
+            return getParameterType();
+        }
+    }
+
+    private Class<?> getParameterType() {
+        Class<?> paramType = this.parameterType;
+        if (paramType != null) {
+            return paramType;
+        }
+        if (getContainingClass() != getDeclaringClass()) {
+            paramType = ResolvableType.forMethodParameter(this, null, 1).resolve();
+        }
+        if (paramType == null) {
+            paramType = computeParameterType();
+        }
+        this.parameterType = paramType;
+        return paramType;
+    }
+
+    private Integer getTypeIndexForLevel(int nestingLevel) {
+        return getTypeIndexesPerLevel().get(nestingLevel);
+    }
+
+    private Map<Integer, Integer> getTypeIndexesPerLevel() {
+        if (this.typeIndexesPerLevel == null) {
+            this.typeIndexesPerLevel = new HashMap<>(4);
+        }
+        return this.typeIndexesPerLevel;
     }
 
     public Type getGenericParameterType() {
@@ -65,8 +128,15 @@ public class MethodParameter {
         return paramType;
     }
 
-    private Type computeParameterType() {
-        return null;
+    private Class<?> computeParameterType() {
+        if (this.parameterIndex < 0) {
+            Method method = getMethod();
+            if (method == null) {
+                return void.class;
+            }
+            return method.getReturnType();
+        }
+        return this.executable.getParameterTypes()[this.parameterIndex];
     }
 
     public Method getMethod() {
@@ -80,4 +150,5 @@ public class MethodParameter {
     public int getParameterIndex() {
         return this.parameterIndex;
     }
+
 }

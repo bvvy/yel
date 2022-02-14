@@ -4,6 +4,7 @@ import org.bvvy.yel.util.ClassUtils;
 import org.bvvy.yel.util.ObjectUtils;
 
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ public class TypeDescriptor {
     public TypeDescriptor(ResolvableType resolvableType, Class<?> type, Annotation[] annotations) {
         this.resolvableType = resolvableType;
         this.type = (type != null ? type : resolvableType.toClass());
+        //todo annotations
     }
 
     public static TypeDescriptor forObject(Object source) {
@@ -56,8 +58,27 @@ public class TypeDescriptor {
         return getType().isPrimitive();
     }
 
-    public boolean isAssignableTo(TypeDescriptor expectedArg) {
-        return false;
+    public boolean isAssignableTo(TypeDescriptor typeDescriptor) {
+        boolean typeAssignable = typeDescriptor.getObjectType().isAssignableFrom(getObjectType());
+        if (!typeAssignable) {
+            return false;
+        }
+        if (isArray() && typeDescriptor.isArray()) {
+            return isNestedAssignable(getElementTypeDescriptor(), typeDescriptor.getElementTypeDescriptor());
+        } else if (isCollection() && typeDescriptor.isCollection()) {
+            return isNestedAssignable(getElementTypeDescriptor(), typeDescriptor.getElementTypeDescriptor());
+        } else if (isMap() && typeDescriptor.isMap()) {
+            return isNestedAssignable(getMapKeyTypeDescriptor(), typeDescriptor.getMapKeyTypeDescriptor())
+                    && isNestedAssignable(getMapValueTypeDescriptor(), typeDescriptor.getMapValueTypeDescriptor());
+        } else {
+            return true;
+        }
+    }
+
+    private boolean isNestedAssignable(TypeDescriptor nestedTypeDescriptor, TypeDescriptor otherNestedTypeDescriptor) {
+        return (nestedTypeDescriptor == null
+                || otherNestedTypeDescriptor == null
+                || nestedTypeDescriptor.isAssignableTo(otherNestedTypeDescriptor));
     }
 
 
@@ -93,35 +114,57 @@ public class TypeDescriptor {
     }
 
     public TypeDescriptor getElementTypeDescriptor() {
-        return null;
+        if (getResolvableType().isArray()) {
+            return new TypeDescriptor(getResolvableType().getComponentType(), null, getAnnotations());
+        }
+        return getRelatedIfResolvable(this, getResolvableType().asCollection().getGeneric(0));
+    }
+
+    private TypeDescriptor getRelatedIfResolvable(TypeDescriptor source, ResolvableType type) {
+        if (type.resolve() == null) {
+            return null;
+        }
+        return new TypeDescriptor(type, null, source.getAnnotations());
+    }
+
+    private Annotation[] getAnnotations() {
+        return new Annotation[0];
     }
 
     private TypeDescriptor getMapValueTypeDescriptor() {
         return null;
     }
 
-    private Object getMapKeyTypeDescriptor() {
+    private TypeDescriptor getMapKeyTypeDescriptor() {
         return null;
     }
 
     private boolean annotationsMatch(TypeDescriptor otherDesc) {
-        return false;
+        return true;
     }
 
     private boolean isMap() {
-        return false;
+        return Map.class.isAssignableFrom(getType());
     }
 
     private boolean isArray() {
-        return false;
+        return getType().isArray();
     }
 
     private boolean isCollection() {
-        return false;
+        return Collection.class.isAssignableFrom(getType());
     }
 
     public Class<?> getObjectType() {
         return ClassUtils.resolvePrimitiveIfNecessary(getType());
+    }
+
+    public TypeDescriptor narrow(Object value) {
+        if (value == null) {
+            return this;
+        }
+        ResolvableType narrowed = ResolvableType.forType(value.getClass(), getResolvableType());
+        return new TypeDescriptor(narrowed, value.getClass(), getAnnotations());
     }
 
 }

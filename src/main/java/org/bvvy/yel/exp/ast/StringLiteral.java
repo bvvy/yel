@@ -7,7 +7,7 @@ import org.objectweb.asm.MethodVisitor;
 public class StringLiteral extends Literal {
 
     public StringLiteral(String payload, int startPos, int endPos, String value) {
-        super(payload, startPos, endPos, new TypedValue(value));
+        super(payload, startPos, endPos, new TypedValue(value.substring(1, value.length() - 1)));
         this.exitTypeDescriptor = "Ljava/lang/String";
     }
 

@@ -4,8 +4,11 @@ import org.bvvy.yel.util.ObjectUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.*;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ResolvableType {
 
@@ -168,8 +171,21 @@ public class ResolvableType {
         return bounds[0];
     }
 
-    private ResolvableType getComponentType() {
-        return null;
+    public ResolvableType getComponentType() {
+        if (this == NONE) {
+            return NONE;
+        }
+        if (this.componentType != null) {
+            return this.componentType;
+        }
+        if (this.type instanceof Class) {
+            Class<?> componentType = ((Class<?>) this.type).getComponentType();
+            return forType(componentType, this.variableResolver);
+        }
+        if (this.type instanceof GenericArrayType) {
+            return forType(((GenericArrayType) this.type).getGenericComponentType(), this.variableResolver);
+        }
+        return resolveType().getComponentType();
     }
 
     public ResolvableType getNested(int nestingLevel, Map<Integer, Integer> typeIndexesPerLevel) {
@@ -183,20 +199,20 @@ public class ResolvableType {
                 }
                 Integer index = (typeIndexesPerLevel != null ? typeIndexesPerLevel.get(i) : null);
                 index = (index == null ? result.getGenerics().length - 1 : index);
-                result = result.getGenerics(index);
+                result = result.getGeneric(index);
             }
         }
         return result;
     }
 
-    private ResolvableType getGenerics(int... indexes) {
+    public ResolvableType getGeneric(int... indexes) {
         ResolvableType[] generics = getGenerics();
         if (indexes == null || indexes.length == 0) {
             return (generics.length == 0 ? NONE : generics[0]);
         }
         ResolvableType generic = this;
         for (int index : indexes) {
-            generics =generic.getGenerics();
+            generics = generic.getGenerics();
             if (index < 0 || index >= generics.length) {
                 return NONE;
             }
@@ -209,7 +225,7 @@ public class ResolvableType {
         return (getGenerics().length > 0);
     }
 
-    private boolean isArray() {
+    public boolean isArray() {
         if (this == NONE) {
             return false;
         }
@@ -280,8 +296,8 @@ public class ResolvableType {
         return this.resolved;
     }
 
-    public Class<?> resolve(Object nestedParameterType) {
-        return null;
+    public Class<?> resolve(Class<?> fallback) {
+        return (this.resolved != null ? this.resolved : fallback);
     }
 
     public Class<?> toClass() {
@@ -346,6 +362,35 @@ public class ResolvableType {
             return this.variableResolver.resolveVariable(variable);
         }
         return null;
+    }
+
+    public ResolvableType asCollection() {
+        return as(Collection.class);
+    }
+
+    @Override
+    public String toString() {
+        if (isArray()) {
+            return getComponentType() + "[]";
+        }
+        if (this.resolved == null) {
+            return "?";
+        }
+        if (this.type instanceof TypeVariable) {
+            TypeVariable<?> variable = (TypeVariable<?>) this.type;
+            if (this.variableResolver == null || this.variableResolver.resolveVariable(variable) == null) {
+                return "?";
+            }
+        }
+        if (hasGenerics()) {
+            return this.resolved.getName() + "<" +
+                    Arrays
+                            .stream(generics)
+                            .map(ResolvableType::toString)
+                            .collect(Collectors.joining(","))
+                    + ">";
+        }
+        return this.resolved.getName();
     }
 
     interface VariableResolver extends Serializable {
