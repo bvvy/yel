@@ -1,7 +1,7 @@
 package org.bvvy.yel.function;
 
-public interface Function0<T> {
+public interface Function0<R> extends YelFunction {
 
-    T apply();
+    R apply();
 
 }
