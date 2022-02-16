@@ -1,4 +1,4 @@
-package org.bvvy.yel.context;
+package org.bvvy.yel.context.comparator;
 
 import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.util.NumberUtils;

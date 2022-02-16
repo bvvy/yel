@@ -1,7 +1,7 @@
 package org.bvvy.yel.exp;
 
 import org.bvvy.yel.context.Context;
-import org.bvvy.yel.context.TypeComparator;
+import org.bvvy.yel.context.comparator.TypeComparator;
 import org.bvvy.yel.exception.YelEvaluationException;
 
 import java.util.ArrayDeque;

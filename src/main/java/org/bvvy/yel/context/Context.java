@@ -1,5 +1,13 @@
 package org.bvvy.yel.context;
 
+import org.bvvy.yel.context.accessor.MapAccessor;
+import org.bvvy.yel.context.accessor.PropertyAccessor;
+import org.bvvy.yel.context.comparator.StandardTypeComparator;
+import org.bvvy.yel.context.comparator.TypeComparator;
+import org.bvvy.yel.context.method.MethodResolver;
+import org.bvvy.yel.context.method.ReflectiveMethodResolver;
+import org.bvvy.yel.context.method.StandardTypeConverter;
+import org.bvvy.yel.context.method.TypeConverter;
 import org.bvvy.yel.exp.TypedValue;
 
 import java.util.ArrayList;
@@ -7,7 +15,7 @@ import java.util.List;
 
 public class Context {
 
-    private final TypedValue rootObject;
+    private TypedValue rootObject;
 
     private List<PropertyAccessor> propertyAccessors;
 
@@ -19,11 +27,25 @@ public class Context {
 
     public Context(Object rootObject) {
         this.rootObject = new TypedValue(rootObject);
-        this.propertyAccessors = new ArrayList<>();
-        propertyAccessors.add(new MapAccessor());
+    }
+
+    public Context() {
+        this.rootObject = TypedValue.NULL;
+    }
+
+    public void setMethodResolvers(List<MethodResolver> methodResolvers) {
+        this.methodResolvers = methodResolvers;
+    }
+
+    public void setRootObject(Object rootObject) {
+        this.rootObject = rootObject == null ? TypedValue.NULL : new TypedValue(rootObject);
     }
 
     public List<PropertyAccessor> getPropertyAccessors() {
+        if (this.propertyAccessors == null) {
+            this.propertyAccessors = new ArrayList<>();
+            propertyAccessors.add(new MapAccessor());
+        }
         return this.propertyAccessors;
     }
 

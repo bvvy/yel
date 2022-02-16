@@ -30,6 +30,7 @@ public class YelExpression implements Expression {
         this.yelCompiler = configuration.getYelCompiler();
     }
 
+    @Override
     public Object getValue(Context context) {
         CompiledExpression compiledAst = this.compiledAst;
         if (compiledAst != null) {

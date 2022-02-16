@@ -1,14 +1,13 @@
 package org.bvvy.yel.exp.ast;
 
-import org.bvvy.yel.context.CompilablePropertyAccessor;
+import org.bvvy.yel.context.accessor.CompilablePropertyAccessor;
 import org.bvvy.yel.context.Context;
-import org.bvvy.yel.context.PropertyAccessor;
+import org.bvvy.yel.context.accessor.PropertyAccessor;
 import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypedValue;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
 
 import java.util.List;
 

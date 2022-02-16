@@ -1,8 +1,8 @@
 package org.bvvy.yel.exp.ast;
 
 import org.bvvy.yel.context.Context;
-import org.bvvy.yel.context.MethodExecutor;
-import org.bvvy.yel.context.MethodResolver;
+import org.bvvy.yel.context.method.MethodExecutor;
+import org.bvvy.yel.context.method.MethodResolver;
 import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.convert.TypeDescriptor;
@@ -36,9 +36,6 @@ public class MethodReference extends NodeImpl {
 
     private TypedValue getValueInternal(Context context, Object value, TypeDescriptor targetType, Object[] arguments) {
         List<TypeDescriptor> argumentTypes = getArgumentTypes(arguments);
-        if (value == null) {
-            return TypedValue.NULL;
-        }
         MethodExecutor executorToUse = getCachedExecutor(context, value, targetType, arguments);
         if (executorToUse != null) {
             return executorToUse.execute(context, value, arguments);
@@ -59,7 +56,8 @@ public class MethodReference extends NodeImpl {
         throw new YelEvaluationException();
     }
 
-    private MethodExecutor getCachedExecutor(Context context, Object value, TypeDescriptor targetType, Object[] arguments) {
+    private MethodExecutor getCachedExecutor(Context context, Object value, TypeDescriptor target, Object[] arguments) {
+
         return null;
     }
 

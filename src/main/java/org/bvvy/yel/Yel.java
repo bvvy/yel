@@ -3,6 +3,7 @@ package org.bvvy.yel;
 
 import org.bvvy.yel.config.YelConfig;
 import org.bvvy.yel.context.Context;
+import org.bvvy.yel.exp.Expression;
 import org.bvvy.yel.exp.YelExpression;
 import org.bvvy.yel.parser.YelParser;
 
@@ -39,4 +40,9 @@ public class Yel {
         YelExpression exp = yelParser.parse(expression);
         return exp.getValue(context);
     }
+
+    public Expression parse(String expression) {
+        return yelParser.parse(expression);
+    }
+
 }
