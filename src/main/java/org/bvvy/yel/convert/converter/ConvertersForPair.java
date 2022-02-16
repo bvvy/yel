@@ -15,6 +15,10 @@ public class ConvertersForPair {
 
     public GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
         for (GenericConverter converter : converters) {
+            if (!(converter instanceof ConditionalGenericConverter) ||
+                    ((ConditionalGenericConverter) converter).matches(sourceType, targetType)) {
+                return converter;
+            }
         }
         return null;
     }

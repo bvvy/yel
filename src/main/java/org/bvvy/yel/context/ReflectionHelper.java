@@ -2,9 +2,9 @@ package org.bvvy.yel.context;
 
 import org.bvvy.yel.convert.MethodParameter;
 import org.bvvy.yel.convert.TypeDescriptor;
+import org.bvvy.yel.util.ClassUtils;
 
 import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
 import java.util.List;
 
 public class ReflectionHelper {
@@ -52,7 +52,7 @@ public class ReflectionHelper {
                     }
                 } else {
                     if (varargsParamType != suppliedArg.getType()) {
-                        if (varargsParamType.isAssignableFrom(suppliedArg.getType())) {
+                        if (ClassUtils.isAssignable(varargsParamType, suppliedArg.getType())) {
                             if (match != ArgumentsMatchKind.REQUIRES_CONVERSION) {
                                 match = ArgumentsMatchKind.CLOSE;
                             }
@@ -92,8 +92,42 @@ public class ReflectionHelper {
         return match != null ? new ArgumentsMatchInfo(match) : null;
     }
 
-    public static int getTypeDifferenceWeight(List<TypeDescriptor> paramDescriptors, List<TypeDescriptor> argumentTypes) {
-        return 0;
+    public static int getTypeDifferenceWeight(List<TypeDescriptor> paramTypes, List<TypeDescriptor> argTypes) {
+        int result = 0;
+        for (int i = 0; i < paramTypes.size(); i++) {
+            TypeDescriptor paramType = paramTypes.get(i);
+            TypeDescriptor argType = i < argTypes.size() ? argTypes.get(i) : null;
+            if (argType == null) {
+                if (paramType.isPrimitive()) {
+                    return Integer.MAX_VALUE;
+                }
+            } else {
+                Class<?> paramTypeClazz = paramType.getType();
+                if (!ClassUtils.isAssignable(paramTypeClazz, argType.getType())) {
+                    return Integer.MAX_VALUE;
+                }
+                if (paramTypeClazz.isPrimitive()) {
+                    paramTypeClazz = Object.class;
+                }
+                Class<?> superClass = argType.getType().getSuperclass();
+                while (superClass != null) {
+                    if (paramTypeClazz.equals(superClass)) {
+                        result = result + 2;
+                        superClass = null;
+                    } else if (ClassUtils.isAssignable(paramTypeClazz, superClass)) {
+                        result = result + 2;
+                        superClass = superClass.getSuperclass();
+                    } else {
+                        superClass = null;
+                    }
+                }
+                if (paramTypeClazz.isInterface()) {
+                    result = result + 1;
+                }
+            }
+
+        }
+        return result;
     }
 
     public static boolean convertArguments(TypeConverter converter, Object[] arguments, Executable executable, Integer varargsPosition) {

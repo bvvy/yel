@@ -56,4 +56,17 @@ public class ClassUtils {
             return key;
         });
     }
+
+    public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
+        if (lhsType.isAssignableFrom(rhsType)) {
+            return true;
+        }
+        if (lhsType.isPrimitive()) {
+            Class<?> resolvedPrimitive = primitiveWrapperTypeMap.get(rhsType);
+            return lhsType == resolvedPrimitive;
+        } else {
+            Class<?> resolvedWrapper = primitiveTypeToWrapperMap.get(rhsType);
+            return resolvedWrapper != null && lhsType.isAssignableFrom(resolvedWrapper);
+        }
+    }
 }

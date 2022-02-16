@@ -55,7 +55,20 @@ public class TestYel {
     @Test
     public void testMethod() {
         Yel yel = new Yel();
-        Object result = yel.eval("say('Lee')", new Tester());
+        Tester tester = new Tester();
+        Object result = yel.eval("say('Lee')", tester);
         Assertions.assertEquals("Hi Lee, I am Tester", result);
+        result = yel.eval("say(10)", tester);
+        Assertions.assertEquals("I am Tester; I am 10 years old", result);
+        result = yel.eval("say(10.0)", tester);
+        Assertions.assertEquals("I am Tester; I am 10 years old", result);
+
+
+    }
+
+    @Test
+    public void testAssignFrom() {
+
+        System.out.println(Number.class.isAssignableFrom(Integer.class));
     }
 }

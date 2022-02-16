@@ -11,4 +11,10 @@ public class Tester {
     public String say(String name) {
         return "Hi " + name + ", I am " + this.name;
     }
+
+    public String say(Integer age) {
+        return "I am " + this.name + "; I am " + age + " years old";
+    }
+
+
 }

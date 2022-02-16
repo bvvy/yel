@@ -1,8 +1,6 @@
 package org.bvvy.yel.convert;
 
-import org.bvvy.yel.convert.converter.ConvertersForPair;
-import org.bvvy.yel.convert.converter.ConvertiblePair;
-import org.bvvy.yel.convert.converter.GenericConverter;
+import org.bvvy.yel.convert.converter.*;
 import org.bvvy.yel.util.ClassUtils;
 
 import java.lang.reflect.Array;
@@ -41,6 +39,11 @@ public class Converters {
             GenericConverter converter = convertersForPair.getConverter(sourceType, targetType);
             if (converter != null) {
                 return converter;
+            }
+        }
+        for (GenericConverter globalConverter : this.globalConverters) {
+            if (((ConditionalGenericConverter) globalConverter).matches(sourceType, targetType)) {
+                return globalConverter;
             }
         }
         return null;

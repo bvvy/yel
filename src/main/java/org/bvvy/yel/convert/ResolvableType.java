@@ -121,8 +121,18 @@ public class ResolvableType {
         return forType(type, null, variableResolver);
     }
 
-    private Integer calculateHashCode() {
-        return null;
+    private int calculateHashCode() {
+        int hashCode = ObjectUtils.nullSafeHashCode(this.type);
+        if (this.typeProvider != null) {
+            hashCode = 31 * hashCode + ObjectUtils.nullSafeHashCode(this.typeProvider.getType());
+        }
+        if (this.variableResolver != null) {
+            hashCode = 31 * hashCode + ObjectUtils.nullSafeHashCode(this.variableResolver.getSource());
+        }
+        if (this.componentType != null) {
+            hashCode = 31 * hashCode + ObjectUtils.nullSafeHashCode(this.componentType);
+        }
+        return hashCode;
     }
 
     private Class<?> resolveClass() {
@@ -366,6 +376,35 @@ public class ResolvableType {
 
     public ResolvableType asCollection() {
         return as(Collection.class);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof ResolvableType)) {
+            return false;
+        }
+        ResolvableType otherType = (ResolvableType) other;
+        if (!ObjectUtils.nullSafeEquals(this.type, otherType.type)) {
+            return false;
+        }
+        if (this.typeProvider != otherType.typeProvider
+                && (this.typeProvider == null
+                || otherType.typeProvider == null
+                || !ObjectUtils.nullSafeEquals(this.typeProvider.getType(), otherType.typeProvider.getType()))) {
+            return false;
+        }
+        if (!ObjectUtils.nullSafeEquals(this.componentType, otherType.componentType)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (this.hash != null ? this.hash : calculateHashCode());
     }
 
     @Override

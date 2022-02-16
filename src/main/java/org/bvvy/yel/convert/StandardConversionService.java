@@ -118,13 +118,28 @@ public class StandardConversionService implements ConversionService {
     }
 
     @SuppressWarnings("unchecked")
-    public final class ConverterFactoryAdapter implements GenericConverter {
+    public final class ConverterFactoryAdapter implements ConditionalGenericConverter {
         private ConverterFactory<Object, Object> converterFactory;
         private ConvertiblePair typeInfo;
 
         public ConverterFactoryAdapter(ConverterFactory<?, ?> converterFactory, ConvertiblePair typeInfo) {
             this.converterFactory = (ConverterFactory<Object, Object>) converterFactory;
             this.typeInfo = typeInfo;
+        }
+
+        @Override
+        public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+            boolean matches = false;
+            if (this.converterFactory instanceof ConditionalConverter) {
+                matches = ((ConditionalConverter) this.converterFactory).matches(sourceType, targetType);
+            }
+            if (matches) {
+                Converter<Object, ?> converter = this.converterFactory.getConverter(targetType.getType());
+                if (converter instanceof ConditionalConverter) {
+                    matches = ((ConditionalConverter) converter).matches(sourceType, targetType);
+                }
+            }
+            return matches;
         }
 
         @Override
