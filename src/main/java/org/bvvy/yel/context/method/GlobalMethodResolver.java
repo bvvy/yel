@@ -4,8 +4,6 @@ import org.bvvy.yel.context.Context;
 import org.bvvy.yel.convert.MethodParameter;
 import org.bvvy.yel.convert.TypeDescriptor;
 import org.bvvy.yel.exception.YelEvaluationException;
-import org.bvvy.yel.function.GlobalFunction;
-import org.bvvy.yel.function.YelFunction;
 import org.bvvy.yel.util.StringUtils;
 
 import java.lang.reflect.Method;

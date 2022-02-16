@@ -2,7 +2,6 @@ package org.bvvy.yel.context.method;
 
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.exp.TypedValue;
-import org.bvvy.yel.function.YelFunction;
 
 import java.lang.reflect.Method;
 

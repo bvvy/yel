@@ -3,8 +3,8 @@ package org.bvvy.yel.exp;
 import org.bvvy.yel.Yel;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.context.method.GlobalMethodResolver;
-import org.bvvy.yel.function.GlobalFunction;
-import org.bvvy.yel.function.YelFunction;
+import org.bvvy.yel.context.method.GlobalFunction;
+import org.bvvy.yel.context.method.YelFunction;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
