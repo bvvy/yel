@@ -121,6 +121,10 @@ public class ResolvableType {
         return forType(type, null, variableResolver);
     }
 
+    public static ResolvableType forField(Field field) {
+        return forType(null, new FieldTypeProvider(field), null);
+    }
+
     private int calculateHashCode() {
         int hashCode = ObjectUtils.nullSafeHashCode(this.type);
         if (this.typeProvider != null) {
@@ -462,6 +466,24 @@ public class ResolvableType {
         @Override
         public ResolvableType resolveVariable(TypeVariable<?> variable) {
             return this.source.resolveVariable(variable);
+        }
+
+    }
+
+    private static class FieldTypeProvider implements TypeProvider {
+        private final String fieldName;
+        private final Class<?> declaringClass;
+        private Field field;
+
+        public FieldTypeProvider(Field field) {
+            this.field = field;
+            this.fieldName = field.getName();
+            this.declaringClass = field.getDeclaringClass();
+        }
+
+        @Override
+        public Type getType() {
+            return this.field.getGenericType();
         }
 
     }

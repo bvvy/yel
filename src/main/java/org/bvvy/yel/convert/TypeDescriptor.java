@@ -4,6 +4,7 @@ import org.bvvy.yel.util.ClassUtils;
 import org.bvvy.yel.util.ObjectUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,18 @@ public class TypeDescriptor {
         this.resolvableType = resolvableType;
         this.type = (type != null ? type : resolvableType.toClass());
         //todo annotations
+    }
+
+    public TypeDescriptor(Property property) {
+        this.resolvableType = ResolvableType.forMethodParameter(property.getMethodParameter());
+        this.type = this.resolvableType.resolve(property.getType());
+        // todo annotations
+    }
+
+    public TypeDescriptor(Field field) {
+        this.resolvableType = ResolvableType.forField(field);
+        this.type = this.resolvableType.resolve(field.getType());
+        // todo annotations
     }
 
     public static TypeDescriptor forObject(Object source) {

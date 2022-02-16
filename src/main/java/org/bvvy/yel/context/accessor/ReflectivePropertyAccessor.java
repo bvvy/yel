@@ -1,14 +1,17 @@
 package org.bvvy.yel.context.accessor;
 
 import org.bvvy.yel.context.Context;
+import org.bvvy.yel.convert.Property;
+import org.bvvy.yel.convert.TypeDescriptor;
 import org.bvvy.yel.exp.TypedValue;
+import org.bvvy.yel.util.ClassUtils;
 import org.bvvy.yel.util.StringUtils;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author bvvy
@@ -17,7 +20,9 @@ import java.util.Set;
 public class ReflectivePropertyAccessor implements PropertyAccessor {
     private static final Set<Class<?>> ANY_TYPES = Collections.emptySet();
 
-    private Map<PropertyCacheKey, Object> readerCache;
+    private Map<PropertyCacheKey, InvokerPair> readerCache = new HashMap<>(64);
+    private Map<Class<?>, Method[]> sortedMethodsCache = new HashMap<>(64);
+    private Map<PropertyCacheKey, TypeDescriptor> typeDescriptorCache = new HashMap<>(64);
 
     @Override
     public boolean canRead(Context context, Object target, String name) {
@@ -33,8 +38,54 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
             return true;
         }
         Method method = findGetterForProperty(name, type, target);
-
+        if (method != null) {
+            Property property = new Property(type, method, null);
+            TypeDescriptor typeDescriptor = new TypeDescriptor(property);
+            method = ClassUtils.getInterfaceMethodIfPossible(method);
+            this.readerCache.put(cacheKey, new InvokerPair(method, typeDescriptor));
+            this.typeDescriptorCache.put(cacheKey, typeDescriptor);
+            return true;
+        } else {
+            Field field = findField(name, type, target);
+            if (field != null) {
+                TypeDescriptor typeDescriptor = new TypeDescriptor(field);
+                this.readerCache.put(cacheKey, new InvokerPair(field, typeDescriptor));
+                this.typeDescriptorCache.put(cacheKey, typeDescriptor);
+                return true;
+            }
+        }
         return false;
+    }
+
+    private Field findField(String name, Class<?> clazz, Object target) {
+        Field field = findField(name, clazz, target instanceof Class);
+        if (field == null || target instanceof Class) {
+            field = findField(name, target.getClass(), false);
+        }
+        return field;
+    }
+
+    private Field findField(String name, Class<?> clazz, boolean mustBeStatic) {
+        Field[] fields = clazz.getFields();
+        for (Field field : fields) {
+            if (field.getName().equals(name)
+                    && (!mustBeStatic || Modifier.isStatic(field.getModifiers()))) {
+                return field;
+            }
+        }
+        if (clazz.getSuperclass() != null) {
+            Field field = findField(name, clazz.getSuperclass(), mustBeStatic);
+            if (field != null) {
+                return field;
+            }
+        }
+        for (Class<?> implementedInterface : clazz.getInterfaces()) {
+            Field field = findField(name, implementedInterface, mustBeStatic);
+            if (field != null) {
+                return field;
+            }
+        }
+        return null;
     }
 
     private Method findGetterForProperty(String propertyName, Class<?> clazz, Object target) {
@@ -73,11 +124,15 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
     }
 
     private boolean isCandidateForProperty(Method method, Class<?> clazz) {
-        return false;
+        return true;
     }
 
     private Method[] getSortedMethods(Class<?> clazz) {
-        return new Method[0];
+        return this.sortedMethodsCache.computeIfAbsent(clazz, key -> {
+            Method[] methods = key.getMethods();
+            Arrays.sort(methods, (o1, o2) -> o1.isBridge() == o2.isBridge() ? 0 : o1.isBridge() ? 1 : -1);
+            return methods;
+        });
     }
 
     private String[] getPropertyMethodSuffixes(String propertyName) {
@@ -100,4 +155,31 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
 
         return null;
     }
+
+    private static class InvokerPair {
+        private Member member;
+        private TypeDescriptor typeDescriptor;
+
+        public InvokerPair(Member member, TypeDescriptor typeDescriptor) {
+
+            this.member = member;
+            this.typeDescriptor = typeDescriptor;
+        }
+    }
+
+    private static class PropertyCacheKey {
+        private final Class<?> clazz;
+        private final String name;
+        private final boolean targetIsClass;
+
+        public PropertyCacheKey(Class<?> clazz, String name, boolean targetIsClass) {
+
+            this.clazz = clazz;
+            this.name = name;
+            this.targetIsClass = targetIsClass;
+        }
+
+
+    }
+
 }
