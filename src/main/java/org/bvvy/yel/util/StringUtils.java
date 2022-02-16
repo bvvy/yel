@@ -24,4 +24,7 @@ public class StringUtils {
         return (str == null || str.length() == 0 || !containsText(str));
     }
 
+    public static String capitalize(String suffix) {
+        return null;
+    }
 }

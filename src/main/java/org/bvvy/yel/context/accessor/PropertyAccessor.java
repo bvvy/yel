@@ -7,7 +7,7 @@ import org.bvvy.yel.exp.TypedValue;
  * @author bvvy
  */
 public interface PropertyAccessor {
-    boolean canRead(Context context, Object value, String name);
+    boolean canRead(Context context, Object target, String name);
 
     TypedValue read(Context context, Object target, String name);
 }
