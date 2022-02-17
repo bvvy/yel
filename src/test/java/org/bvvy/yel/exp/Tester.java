@@ -6,7 +6,11 @@ package org.bvvy.yel.exp;
  */
 public class Tester {
 
-    String name = "Tester";
+    private String name = "Tester";
+
+    public String getName() {
+        return name;
+    }
 
     public String say(String name) {
         return "Hi " + name + ", I am " + this.name;

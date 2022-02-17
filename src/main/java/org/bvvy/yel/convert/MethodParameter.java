@@ -34,6 +34,15 @@ public class MethodParameter {
         this.nestingLevel = nestingLevel;
     }
 
+    public MethodParameter(MethodParameter original) {
+        this.executable = original.executable;
+        this.parameterIndex = original.parameterIndex;
+        this.nestingLevel = original.nestingLevel;
+        this.typeIndexesPerLevel = original.typeIndexesPerLevel;
+        this.containingClass = original.containingClass;
+        this.parameterType = original.parameterType;
+        this.genericParameterType = original.genericParameterType;
+    }
 
 
     public static MethodParameter forExecutable(Executable executable, int parameterIndex) {
@@ -83,7 +92,7 @@ public class MethodParameter {
         }
     }
 
-    private Class<?> getParameterType() {
+    public Class<?> getParameterType() {
         Class<?> paramType = this.parameterType;
         if (paramType != null) {
             return paramType;
@@ -151,4 +160,15 @@ public class MethodParameter {
         return this.parameterIndex;
     }
 
+    public MethodParameter withContainingClass(Class<?> containingClass) {
+        MethodParameter result = clone();
+        this.containingClass = containingClass;
+        this.parameterType = null;
+        return result;
+    }
+
+    @Override
+    protected MethodParameter clone() {
+        return new MethodParameter(this);
+    }
 }

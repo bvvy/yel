@@ -2,12 +2,10 @@ package org.bvvy.yel.context;
 
 import org.bvvy.yel.context.accessor.MapAccessor;
 import org.bvvy.yel.context.accessor.PropertyAccessor;
+import org.bvvy.yel.context.accessor.ReflectivePropertyAccessor;
 import org.bvvy.yel.context.comparator.StandardTypeComparator;
 import org.bvvy.yel.context.comparator.TypeComparator;
-import org.bvvy.yel.context.method.MethodResolver;
-import org.bvvy.yel.context.method.ReflectiveMethodResolver;
-import org.bvvy.yel.context.method.StandardTypeConverter;
-import org.bvvy.yel.context.method.TypeConverter;
+import org.bvvy.yel.context.method.*;
 import org.bvvy.yel.exp.TypedValue;
 
 import java.util.ArrayList;
@@ -45,6 +43,7 @@ public class Context {
         if (this.propertyAccessors == null) {
             this.propertyAccessors = new ArrayList<>();
             propertyAccessors.add(new MapAccessor());
+            propertyAccessors.add(new ReflectivePropertyAccessor());
         }
         return this.propertyAccessors;
     }
@@ -66,6 +65,7 @@ public class Context {
         if (resolvers == null) {
             resolvers = new ArrayList<>(1);
             resolvers.add(new ReflectiveMethodResolver());
+            resolvers.add(new GlobalMethodResolver());
             this.methodResolvers = resolvers;
         }
         return resolvers;

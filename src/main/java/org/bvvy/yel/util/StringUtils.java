@@ -10,6 +10,10 @@ public class StringUtils {
         return (str != null && str.length() > 0 && containsText(str));
     }
 
+    public static boolean hasLength(String str) {
+        return (str != null && !str.isEmpty());
+    }
+
     public static boolean containsText(CharSequence str) {
         int strLen = str.length();
         for (int i = 0; i < strLen; i++) {
@@ -24,7 +28,30 @@ public class StringUtils {
         return (str == null || str.length() == 0 || !containsText(str));
     }
 
-    public static String capitalize(String suffix) {
-        return null;
+    public static String capitalize(String str) {
+        return changeFirstCharacterCase(str, true);
+    }
+
+    private static String changeFirstCharacterCase(String str, boolean capitalize) {
+        if (!hasLength(str)) {
+            return str;
+        }
+        char baseChar = str.charAt(0);
+        char updatedChar;
+        if (capitalize) {
+            updatedChar = Character.toUpperCase(baseChar);
+        } else {
+            updatedChar = Character.toLowerCase(baseChar);
+        }
+        if (baseChar == updatedChar) {
+            return str;
+        }
+        char[] chars = str.toCharArray();
+        chars[0] = updatedChar;
+        return new String(chars);
+    }
+
+    public static String uncapitalize(String str) {
+        return changeFirstCharacterCase(str, false);
     }
 }

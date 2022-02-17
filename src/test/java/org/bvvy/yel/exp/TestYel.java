@@ -63,7 +63,14 @@ public class TestYel {
         result = yel.eval("say(10.0)", tester);
         Assertions.assertEquals("I am Tester; I am 10 years old", result);
 
+    }
 
+    @Test
+    public void testProperty() {
+        Yel yel = new Yel();
+        Tester tester = new Tester();
+        Object result = yel.eval("name", tester);
+        System.out.println(result);
     }
 
     @Test
