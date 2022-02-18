@@ -205,7 +205,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
                 }
             }
         }
-        throw new AccessException("Neigher getter method nor field found for property '" + name + "'");
+        throw new AccessException("Neither getter method nor field found for property '" + name + "'");
     }
 
     private static class InvokerPair {
@@ -220,17 +220,28 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
 
     private static class PropertyCacheKey {
         private final Class<?> clazz;
-        private final String name;
+        private final String property;
         private final boolean targetIsClass;
 
         public PropertyCacheKey(Class<?> clazz, String name, boolean targetIsClass) {
 
             this.clazz = clazz;
-            this.name = name;
+            this.property = name;
             this.targetIsClass = targetIsClass;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PropertyCacheKey cacheKey = (PropertyCacheKey) o;
+            return targetIsClass == cacheKey.targetIsClass && clazz.equals(cacheKey.clazz) && property.equals(cacheKey.property);
+        }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash(clazz, property);
+        }
     }
 
 }
