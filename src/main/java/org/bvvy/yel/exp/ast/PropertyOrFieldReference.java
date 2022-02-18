@@ -7,6 +7,7 @@ import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypedValue;
+import org.bvvy.yel.exp.ValueRef;
 import org.objectweb.asm.MethodVisitor;
 
 import java.util.List;
@@ -20,6 +21,11 @@ public class PropertyOrFieldReference extends NodeImpl {
         super(startPos, endPos);
         this.nullSafe = nullSafe;
         this.name = propertyOrFieldName;
+    }
+
+    @Override
+    public ValueRef getValueRef(ExpressionState state) {
+        return new AccessorLValue(this, state.getActiveContextObject(), state.getContext());
     }
 
     @Override
@@ -83,5 +89,22 @@ public class PropertyOrFieldReference extends NodeImpl {
         ((CompilablePropertyAccessor) accessorToUse).generateCode(this.name, mv, cf);
         cf.pushDescriptor(this.exitTypeDescriptor);
 
+    }
+
+    private class AccessorLValue implements ValueRef {
+        private PropertyOrFieldReference ref;
+        private TypedValue activeContextObject;
+        private Context context;
+
+        public AccessorLValue(PropertyOrFieldReference propertyOrFieldReference, TypedValue activeContextObject, Context context) {
+            ref = propertyOrFieldReference;
+            this.activeContextObject = activeContextObject;
+            this.context = context;
+        }
+
+        @Override
+        public TypedValue getValue() {
+            return null;
+        }
     }
 }

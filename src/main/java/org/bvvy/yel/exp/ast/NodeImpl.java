@@ -1,5 +1,6 @@
 package org.bvvy.yel.exp.ast;
 
+import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypedValue;
@@ -52,7 +53,7 @@ public abstract class NodeImpl implements Node {
 
     @Override
     public ValueRef getValueRef(ExpressionState state) {
-        return null;
+        throw new YelEvaluationException();
     }
 
     @Override

@@ -6,7 +6,20 @@ package org.bvvy.yel.exp;
  */
 public class Tester {
 
-    private String name = "Tester";
+    private final String name;
+    private Tester tester;
+
+    public Tester(String name) {
+        this.name = name;
+    }
+
+    public Tester getTester() {
+        return tester;
+    }
+
+    public void setTester(Tester tester) {
+        this.tester = tester;
+    }
 
     public String getName() {
         return name;

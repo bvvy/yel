@@ -57,7 +57,6 @@ public class TestYel {
     }
 
 
-
     @Test
     public void testIndexer() {
         Yel yel = new Yel();
@@ -84,7 +83,7 @@ public class TestYel {
     @Test
     public void testMethod() {
         Yel yel = new Yel();
-        Tester tester = new Tester();
+        Tester tester = new Tester("Tester");
         Object result = yel.eval("say('Lee')", tester);
         Assertions.assertEquals("Hi Lee, I am Tester", result);
         result = yel.eval("say(10)", tester);
@@ -97,8 +96,11 @@ public class TestYel {
     @Test
     public void testProperty() {
         Yel yel = new Yel();
-        Tester tester = new Tester();
+        Tester tester = new Tester("Tester");
+        tester.setTester(new Tester("Inner"));
         Object result = yel.eval("name", tester);
+        System.out.println(result);
+        result = yel.eval("tester.name", tester);
         System.out.println(result);
     }
 }
