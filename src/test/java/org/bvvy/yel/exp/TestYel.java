@@ -15,6 +15,19 @@ import java.util.Map;
 public class TestYel {
 
     @Test
+    public void testLiteral() {
+        Yel yel = new Yel();
+        Object value = yel.eval("true");
+        Assertions.assertEquals(true, value);
+        value = yel.eval("false");
+        Assertions.assertEquals(false, value);
+        value = yel.eval("'string'");
+        Assertions.assertEquals("string", value);
+        value = yel.eval("null");
+        Assertions.assertNull(value);
+    }
+
+    @Test
     public void testAdd() {
         Yel yel = new Yel();
 
@@ -42,6 +55,8 @@ public class TestYel {
         Object result = yel.eval("a", env);
         Assertions.assertEquals(100, result);
     }
+
+
 
     @Test
     public void testIndexer() {
@@ -85,11 +100,5 @@ public class TestYel {
         Tester tester = new Tester();
         Object result = yel.eval("name", tester);
         System.out.println(result);
-    }
-
-    @Test
-    public void testAssignFrom() {
-
-        System.out.println(Number.class.isAssignableFrom(Integer.class));
     }
 }

@@ -333,11 +333,24 @@ public class YelParser implements Parser {
             return pop();
         } else if (maybeEatParenExpression()) {
             return pop();
-        } else if (maybeEatMethodProperty(false)) {
+        } else if (maybeEatNullReference() || maybeEatMethodProperty(false)) {
             return pop();
         }
 
         return null;
+    }
+
+    private boolean maybeEatNullReference() {
+        if (peekToken(TokenKind.IDENTIFIER)) {
+            Token nullToken = peekToken();
+            if (!"null".equalsIgnoreCase(nullToken.stringValue())) {
+                return false;
+            }
+            nextToken();
+            this.constructedNodes.push(new NullLiteral(nullToken.getStartPos(), nullToken.getEndPos()));
+            return true;
+        }
+        return false;
     }
 
     protected boolean maybeEatParenExpression() {
