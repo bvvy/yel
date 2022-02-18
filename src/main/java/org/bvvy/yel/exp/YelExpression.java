@@ -31,6 +31,11 @@ public class YelExpression implements Expression {
     }
 
     @Override
+    public Object getValue() {
+        return getValue(new Context());
+    }
+
+    @Override
     public Object getValue(Context context) {
         CompiledExpression compiledAst = this.compiledAst;
         if (compiledAst != null) {

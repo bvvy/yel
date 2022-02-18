@@ -8,4 +8,6 @@ import org.bvvy.yel.context.Context;
 public interface Expression {
 
     Object getValue(Context context);
+
+    Object getValue();
 }

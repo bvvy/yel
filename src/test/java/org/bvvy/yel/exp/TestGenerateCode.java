@@ -1,5 +1,7 @@
 package org.bvvy.yel.exp;
 
+import org.bvvy.yel.Yel;
+import org.bvvy.yel.config.YelConfig;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.parser.YelCompilerMode;
 import org.bvvy.yel.parser.YelParser;
@@ -107,7 +109,6 @@ public class TestGenerateCode {
         Assertions.assertEquals(v2, v3);
 
 
-
         ex1 = parser.parse("2.5 != 2");
         v1 = ex1.getValue(context);
         System.out.println(v1);
@@ -138,6 +139,25 @@ public class TestGenerateCode {
         System.out.println(v3);
         Assertions.assertEquals(v1, v2);
         Assertions.assertEquals(v2, v3);
+    }
+
+    @Test
+    public void testBitOperator() {
+        YelParserConfig yelParserConfig = new YelParserConfig(YelCompilerMode.IMMEDIATE);
+        YelConfig yelConfig = new YelConfig(yelParserConfig);
+        Yel yel = new Yel(yelConfig);
+        Expression exp = yel.parse("1 & 1");
+        exp.getValue();
+        Assertions.assertEquals(exp.getValue(), exp.getValue());
+        exp = yel.parse("1 | 1");
+        exp.getValue();
+        Assertions.assertEquals(exp.getValue(), exp.getValue());
+        exp = yel.parse("1 ^ 1");
+        exp.getValue();
+        Assertions.assertEquals(exp.getValue(), exp.getValue());
+        exp = yel.parse("3 ^ 3 & 2 | 2");
+        exp.getValue();
+        Assertions.assertEquals(exp.getValue(), exp.getValue());
     }
 
 }

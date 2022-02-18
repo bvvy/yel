@@ -53,6 +53,20 @@ public class TestYel {
     }
 
     @Test
+    public void testBitOperator() {
+        Yel yel = new Yel();
+        Object result = yel.eval("1 & 1");
+        Assertions.assertEquals(1, result);
+        result = yel.eval("1 | 1");
+        Assertions.assertEquals(1, result);
+        result = yel.eval("1 ^ 1");
+        Assertions.assertEquals(0, result);
+        result = yel.eval("3 ^ 3 & 2 | 2");
+        Assertions.assertEquals(1, result);
+    }
+
+
+    @Test
     public void testMethod() {
         Yel yel = new Yel();
         Tester tester = new Tester();
