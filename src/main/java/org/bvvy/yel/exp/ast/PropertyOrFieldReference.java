@@ -93,18 +93,20 @@ public class PropertyOrFieldReference extends NodeImpl {
 
     private class AccessorLValue implements ValueRef {
         private PropertyOrFieldReference ref;
-        private TypedValue activeContextObject;
+        private TypedValue contextObject;
         private Context context;
 
         public AccessorLValue(PropertyOrFieldReference propertyOrFieldReference, TypedValue activeContextObject, Context context) {
             ref = propertyOrFieldReference;
-            this.activeContextObject = activeContextObject;
+            this.contextObject = activeContextObject;
             this.context = context;
         }
 
         @Override
         public TypedValue getValue() {
-            return null;
+            TypedValue value = this.ref.getValueInternal(this.contextObject, this.context);
+            PropertyAccessor accessorToUse = this.ref.cachedReadAccessor;
+            return value;
         }
     }
 }

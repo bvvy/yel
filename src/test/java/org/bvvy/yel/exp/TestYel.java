@@ -102,5 +102,7 @@ public class TestYel {
         System.out.println(result);
         result = yel.eval("tester.name", tester);
         System.out.println(result);
+        result = yel.eval("tester.say('Lee')", tester);
+        System.out.println(result);
     }
 }
