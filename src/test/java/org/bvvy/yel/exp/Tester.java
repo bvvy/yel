@@ -8,6 +8,7 @@ public class Tester {
 
     private final String name;
     private Tester tester;
+    private Tester[][] testers;
 
     public Tester(String name) {
         this.name = name;
@@ -19,6 +20,14 @@ public class Tester {
 
     public void setTester(Tester tester) {
         this.tester = tester;
+    }
+
+    public void setTesters(Tester[][] testers) {
+        this.testers = testers;
+    }
+
+    public Tester[][] getTesters() {
+        return testers;
     }
 
     public String getName() {

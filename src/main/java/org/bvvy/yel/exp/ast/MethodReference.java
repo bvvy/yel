@@ -7,6 +7,7 @@ import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.convert.TypeDescriptor;
 import org.bvvy.yel.exp.TypedValue;
+import org.bvvy.yel.exp.ValueRef;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,6 +57,14 @@ public class MethodReference extends NodeImpl {
         throw new YelEvaluationException();
     }
 
+    @Override
+    public ValueRef getValueRef(ExpressionState state) {
+        Object[] arguments = getArguments(state);
+        if (state.getActiveContextObject().getValue() == null) {
+        }
+        return new MethodValueRef(state, arguments);
+    }
+
     private MethodExecutor getCachedExecutor(Context context, Object value, TypeDescriptor target, Object[] arguments) {
 
         return null;
@@ -78,4 +87,23 @@ public class MethodReference extends NodeImpl {
     }
 
 
+    private class MethodValueRef implements ValueRef {
+        private final Object[] arguments;
+        private final TypeDescriptor targetType;
+        private final Object value;
+        private final Context context;
+
+        public MethodValueRef(ExpressionState state, Object[] arguments) {
+            this.context = state.getContext();
+            this.value = state.getActiveContextObject().getValue();
+            this.targetType = state.getActiveContextObject().getTypeDescriptor();
+            this.arguments = arguments;
+        }
+
+        @Override
+        public TypedValue getValue() {
+            TypedValue result = MethodReference.this.getValueInternal(this.context, this.value, this.targetType, this.arguments);
+            return result;
+        }
+    }
 }

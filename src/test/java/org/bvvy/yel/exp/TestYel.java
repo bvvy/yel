@@ -97,12 +97,20 @@ public class TestYel {
     public void testProperty() {
         Yel yel = new Yel();
         Tester tester = new Tester("Tester");
-        tester.setTester(new Tester("Inner"));
+        Tester inner = new Tester("Inner");
+        Tester innnner = new Tester("Innnner");
+        tester.setTester(inner);
+        inner.setTester(innnner);
+        tester.setTesters(new Tester[][]{
+                {inner}
+        });
         Object result = yel.eval("name", tester);
         System.out.println(result);
         result = yel.eval("tester.name", tester);
         System.out.println(result);
-        result = yel.eval("tester.say('Lee')", tester);
+        result = yel.eval("tester.tester.name", tester);
+        System.out.println(result);
+        result = yel.eval("testers[0][0].name", tester);
         System.out.println(result);
     }
 }
