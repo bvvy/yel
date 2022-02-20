@@ -10,6 +10,12 @@ public class Elvis extends NodeImpl {
 
     @Override
     public TypedValue getValueInternal(ExpressionState state) {
-        return null;
+        TypedValue value = this.children[0].getValueInternal(state);
+        if (value.getValue() != null && !"".equals(value.getValue())) {
+            return value;
+        } else {
+            TypedValue result = this.children[1].getValueInternal(state);
+            return result;
+        }
     }
 }

@@ -102,6 +102,18 @@ public class TestYel {
         Assertions.assertTrue((Boolean) result);
     }
 
+    @Test
+    public void testExpression() {
+        Yel yel = new Yel();
+        Object result = yel.eval("null ?: 1");
+        Assertions.assertEquals(1, result);
+        result = yel.eval("true ? 0 : 1");
+        Assertions.assertEquals(0, result);
+        result = yel.eval("false? 0 : 1");
+        Assertions.assertEquals(1, result);
+    }
+
+
 
     @Test
     public void testMethod() {
