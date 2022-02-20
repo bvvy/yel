@@ -79,6 +79,29 @@ public class TestYel {
         Assertions.assertEquals(1, result);
     }
 
+    @Test
+    public void testLogicOperator() {
+        Yel yel = new Yel();
+        Object result = yel.eval("true && true");
+        Assertions.assertTrue((Boolean) result);
+        result = yel.eval("true && false");
+        Assertions.assertFalse((Boolean) result);
+        result = yel.eval("false && false");
+        Assertions.assertFalse((Boolean) result);
+        result = yel.eval("true || true");
+        Assertions.assertTrue((Boolean) result);
+        result = yel.eval("true || false");
+        Assertions.assertTrue((Boolean) result);
+        result = yel.eval("false || false");
+        Assertions.assertFalse((Boolean) result);
+        result = yel.eval("!false");
+        Assertions.assertTrue((Boolean) result);
+        result = yel.eval("!true");
+        Assertions.assertFalse((Boolean) result);
+        result = yel.eval("false || true && false || true ");
+        Assertions.assertTrue((Boolean) result);
+    }
+
 
     @Test
     public void testMethod() {

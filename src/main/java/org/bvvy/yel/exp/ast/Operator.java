@@ -7,7 +7,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class Operator extends NodeImpl {
+public abstract class Operator extends NodeImpl {
 
     private final String operatorName;
 
@@ -22,11 +22,6 @@ public class Operator extends NodeImpl {
 
     public Node getRightOperand() {
         return this.children[1];
-    }
-
-    @Override
-    public TypedValue getValueInternal(ExpressionState state) {
-        return null;
     }
 
 

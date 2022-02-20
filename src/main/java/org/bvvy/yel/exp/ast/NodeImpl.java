@@ -46,10 +46,6 @@ public abstract class NodeImpl implements Node {
         return endPos;
     }
 
-    @Override
-    public TypedValue getValueInternal(ExpressionState state) {
-        return null;
-    }
 
     @Override
     public ValueRef getValueRef(ExpressionState state) {
