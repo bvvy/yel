@@ -1,6 +1,7 @@
 package org.bvvy.yel.exp;
 
 import org.bvvy.yel.context.Context;
+import org.bvvy.yel.context.StandardContext;
 import org.bvvy.yel.exception.YelEvaluationException;
 import org.bvvy.yel.exp.ast.Node;
 import org.bvvy.yel.parser.YelCompilerMode;
@@ -32,7 +33,7 @@ public class YelExpression implements Expression {
 
     @Override
     public Object getValue() {
-        return getValue(new Context());
+        return getValue(new StandardContext());
     }
 
     @Override

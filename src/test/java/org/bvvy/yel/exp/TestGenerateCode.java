@@ -3,6 +3,7 @@ package org.bvvy.yel.exp;
 import org.bvvy.yel.Yel;
 import org.bvvy.yel.config.YelConfig;
 import org.bvvy.yel.context.Context;
+import org.bvvy.yel.context.StandardContext;
 import org.bvvy.yel.parser.YelCompilerMode;
 import org.bvvy.yel.parser.YelParser;
 import org.bvvy.yel.parser.YelParserConfig;
@@ -24,7 +25,7 @@ public class TestGenerateCode {
         yelParserConfig.setUseBigDecimalForFloat(true);
         YelParser parser = new YelParser(yelParserConfig);
         Map<String, Object> env = new HashMap<>();
-        Context context = new Context(env);
+        Context context = new StandardContext(env);
         YelExpression ex1 = parser.parse("1.1 + 1.1 + 1");
         Object v1 = ex1.getValue(context);
         Object v2 = ex1.getValue(context);
@@ -59,7 +60,7 @@ public class TestGenerateCode {
         yelParserConfig.setUseBigDecimalForFloat(true);
         YelParser parser = new YelParser(yelParserConfig);
         Map<String, Object> env = new HashMap<>();
-        Context context = new Context(env);
+        Context context = new StandardContext(env);
         YelExpression ex1 = parser.parse("2 <= 2");
         Object v1 = ex1.getValue(context);
         Object v2 = ex1.getValue(context);
@@ -129,7 +130,7 @@ public class TestGenerateCode {
         Map<String, Object> env = new HashMap<>();
         env.put("a", 1);
         env.put("b", 1);
-        Context context = new Context(env);
+        Context context = new StandardContext(env);
         YelExpression ex1 = parser.parse("a == b");
         Object v1 = ex1.getValue(context);
         System.out.println(v1);

@@ -11,70 +11,16 @@ import org.bvvy.yel.exp.TypedValue;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Context {
+public interface Context {
 
-    private TypedValue rootObject;
 
-    private List<PropertyAccessor> propertyAccessors;
+    List<PropertyAccessor> getPropertyAccessors();
 
-    private TypeComparator typeComparator = new StandardTypeComparator();
+    TypedValue getRootObject();
 
-    private List<MethodResolver> methodResolvers;
+    TypeComparator getTypeComparator();
 
-    private TypeConverter typeConverter;
+    List<MethodResolver> getMethodResolvers();
 
-    public Context(Object rootObject) {
-        this.rootObject = new TypedValue(rootObject);
-    }
-
-    public Context() {
-        this.rootObject = TypedValue.NULL;
-    }
-
-    public void setMethodResolvers(List<MethodResolver> methodResolvers) {
-        this.methodResolvers = methodResolvers;
-    }
-
-    public void setRootObject(Object rootObject) {
-        this.rootObject = rootObject == null ? TypedValue.NULL : new TypedValue(rootObject);
-    }
-
-    public List<PropertyAccessor> getPropertyAccessors() {
-        if (this.propertyAccessors == null) {
-            this.propertyAccessors = new ArrayList<>();
-            propertyAccessors.add(new MapAccessor());
-            propertyAccessors.add(new ReflectivePropertyAccessor());
-        }
-        return this.propertyAccessors;
-    }
-
-    public TypedValue getRootObject() {
-        return this.rootObject;
-    }
-
-    public TypeComparator getTypeComparator() {
-        return typeComparator;
-    }
-
-    public List<MethodResolver> getMethodResolvers() {
-        return initMethodResolvers();
-    }
-
-    private List<MethodResolver> initMethodResolvers() {
-        List<MethodResolver> resolvers = this.methodResolvers;
-        if (resolvers == null) {
-            resolvers = new ArrayList<>(1);
-            resolvers.add(new ReflectiveMethodResolver());
-            resolvers.add(new GlobalMethodResolver());
-            this.methodResolvers = resolvers;
-        }
-        return resolvers;
-    }
-
-    public TypeConverter getTypeConverter() {
-        if (this.typeConverter == null) {
-            this.typeConverter = new StandardTypeConverter();
-        }
-        return typeConverter;
-    }
+    TypeConverter getTypeConverter();
 }

@@ -3,6 +3,7 @@ package org.bvvy.yel;
 
 import org.bvvy.yel.config.YelConfig;
 import org.bvvy.yel.context.Context;
+import org.bvvy.yel.context.StandardContext;
 import org.bvvy.yel.exp.Expression;
 import org.bvvy.yel.exp.YelExpression;
 import org.bvvy.yel.parser.YelParser;
@@ -31,7 +32,7 @@ public class Yel {
     }
 
     public Object eval(String expression, Object env) {
-        Context context = new Context(env);
+        Context context = new StandardContext(env);
         return eval(expression, context);
     }
 

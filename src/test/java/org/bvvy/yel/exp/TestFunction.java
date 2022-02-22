@@ -2,6 +2,7 @@ package org.bvvy.yel.exp;
 
 import org.bvvy.yel.Yel;
 import org.bvvy.yel.context.Context;
+import org.bvvy.yel.context.StandardContext;
 import org.bvvy.yel.context.method.GlobalMethodResolver;
 import org.bvvy.yel.context.method.GlobalFunction;
 import org.bvvy.yel.context.method.YelFunction;
@@ -30,7 +31,7 @@ public class TestFunction {
         Yel yel = new Yel();
         Map<String, Object> env = new HashMap<>();
         env.put("a", 3.123);
-        Context context = new Context(env);
+        StandardContext context = new StandardContext(env);
 
         context.setMethodResolvers(Collections.singletonList(globalMethodResolver));
         Expression expression = yel.parse("ROUNDUP(a)");
