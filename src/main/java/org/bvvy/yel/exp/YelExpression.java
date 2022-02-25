@@ -2,7 +2,7 @@ package org.bvvy.yel.exp;
 
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.context.StandardContext;
-import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exception.YelEvalException;
 import org.bvvy.yel.exp.ast.Node;
 import org.bvvy.yel.parser.YelCompilerMode;
 import org.bvvy.yel.parser.YelParserConfig;
@@ -43,7 +43,7 @@ public class YelExpression implements Expression {
             try {
                 return compiledAst.getValue(context.getRootObject().getValue(), context);
             } catch (Exception e) {
-                throw new YelEvaluationException();
+                throw new YelEvalException(e, YelMessage.EXCEPTION_RUNNING_COMPILED_EXPRESSION);
             }
         }
         ExpressionState state = new ExpressionState(context);

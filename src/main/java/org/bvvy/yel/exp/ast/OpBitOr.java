@@ -1,9 +1,10 @@
 package org.bvvy.yel.exp.ast;
 
-import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exception.YelEvalException;
 import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypedValue;
+import org.bvvy.yel.exp.YelMessage;
 import org.bvvy.yel.util.NumberUtils;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -37,10 +38,10 @@ public class OpBitOr extends Operator {
                 this.exitTypeDescriptor = "I";
                 return new TypedValue(leftNumber.intValue() | rightNumber.intValue());
             } else {
-                throw new YelEvaluationException();
+                throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, getOperatorName(), left, right);
             }
         } else {
-            throw new YelEvaluationException();
+            throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, getOperatorName(), left, right);
         }
     }
 

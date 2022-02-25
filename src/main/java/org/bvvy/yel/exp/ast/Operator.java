@@ -16,6 +16,10 @@ public abstract class Operator extends NodeImpl {
         this.operatorName = payload;
     }
 
+    public String getOperatorName() {
+        return operatorName;
+    }
+
     public Node getLeftOperand() {
         return this.children[0];
     }

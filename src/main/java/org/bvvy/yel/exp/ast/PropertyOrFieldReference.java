@@ -3,11 +3,8 @@ package org.bvvy.yel.exp.ast;
 import org.bvvy.yel.context.accessor.CompilablePropertyAccessor;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.context.accessor.PropertyAccessor;
-import org.bvvy.yel.exception.YelEvaluationException;
-import org.bvvy.yel.exp.CodeFlow;
-import org.bvvy.yel.exp.ExpressionState;
-import org.bvvy.yel.exp.TypedValue;
-import org.bvvy.yel.exp.ValueRef;
+import org.bvvy.yel.exception.YelEvalException;
+import org.bvvy.yel.exp.*;
 import org.objectweb.asm.MethodVisitor;
 
 import java.util.List;
@@ -61,7 +58,7 @@ public class PropertyOrFieldReference extends NodeImpl {
             }
 
         }
-        throw new YelEvaluationException();
+        throw new YelEvalException(YelMessage.METHOD_NOT_FOUND);
     }
 
     private List<PropertyAccessor> getPropertyAccessorsToTry(Object contextObject, List<PropertyAccessor> propertyAccessors) {

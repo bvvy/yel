@@ -3,11 +3,12 @@ package org.bvvy.yel.exp.ast;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.context.method.MethodExecutor;
 import org.bvvy.yel.context.method.MethodResolver;
-import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exception.YelEvalException;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.convert.TypeDescriptor;
 import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.exp.ValueRef;
+import org.bvvy.yel.exp.YelMessage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +55,7 @@ public class MethodReference extends NodeImpl {
                 return methodExecutor;
             }
         }
-        throw new YelEvaluationException();
+        throw new YelEvalException(getStartPosition(), YelMessage.METHOD_NOT_FOUND, name);
     }
 
     @Override

@@ -1,9 +1,7 @@
 package org.bvvy.yel.exp.ast;
 
-import org.bvvy.yel.exp.CodeFlow;
-import org.bvvy.yel.exp.ExpressionState;
-import org.bvvy.yel.exp.Operation;
-import org.bvvy.yel.exp.TypedValue;
+import org.bvvy.yel.exception.YelEvalException;
+import org.bvvy.yel.exp.*;
 import org.bvvy.yel.util.NumberUtils;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -36,7 +34,7 @@ public class OpPlus extends Operator {
                 }
                 return new TypedValue(operandOne);
             }
-            return state.operate(Operation.ADD, leftOp, null);
+            throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, this.getOperatorName() ,leftOp,null);
         }
         Object leftOperand = leftOp.getValueInternal(state).getValue();
         Object rightOperand = getRightOperand().getValueInternal(state).getValue();
@@ -72,7 +70,7 @@ public class OpPlus extends Operator {
             this.exitTypeDescriptor = "Ljava/lang/String";
             return new TypedValue((String) leftOperand + rightOperand);
         }
-        return state.operate(Operation.ADD, leftOperand, rightOperand);
+        throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, this.getOperatorName() ,leftOp,null);
     }
 
 

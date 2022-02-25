@@ -3,7 +3,9 @@ package org.bvvy.yel.context.method;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.convert.MethodParameter;
 import org.bvvy.yel.convert.TypeDescriptor;
-import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exception.AccessException;
+import org.bvvy.yel.exception.YelEvalException;
+import org.bvvy.yel.exp.YelMessage;
 import org.bvvy.yel.util.StringUtils;
 
 import java.lang.reflect.Method;
@@ -23,7 +25,7 @@ public class GlobalMethodResolver implements MethodResolver {
 
         YelFunction yelFunction = globalFunctions.get(name);
         if (yelFunction == null) {
-            throw new YelEvaluationException();
+            throw new AccessException("Failed to resolve method");
         }
         TypeConverter typeConverter = context.getTypeConverter();
         Class<?> type = yelFunction.getClass();
@@ -93,7 +95,7 @@ public class GlobalMethodResolver implements MethodResolver {
             return new GlobalMethodExecutor(yelFunction, closeMatch);
         } else if (matchRequiringConversion != null) {
             if (multipleOptions) {
-                throw new YelEvaluationException();
+                throw new YelEvalException(YelMessage.MULTIPLE_POSSIBLE_FUNCTIONS, name);
             }
             return new GlobalMethodExecutor(yelFunction, matchRequiringConversion);
         } else {

@@ -2,7 +2,7 @@ package org.bvvy.yel.exp;
 
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.context.comparator.TypeComparator;
-import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exception.YelEvalException;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -24,10 +24,6 @@ public class ExpressionState {
 
     public Context getContext() {
         return context;
-    }
-
-    public TypedValue operate(Operation operation, Object left, Object right) {
-        throw new YelEvaluationException();
     }
 
     public TypedValue getActiveContextObject() {
@@ -52,10 +48,11 @@ public class ExpressionState {
         return rootObject;
     }
 
-    public ValueRef index(Object index) {
-        throw new YelEvaluationException();
+    public TypedValue operate(Operation op, Object left,Object right)  {
+            String leftType = (left == null ? "null" : left.getClass().getName());
+            String rightType = (right == null? "null" : right.getClass().getName());
+            throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, op, leftType, rightType);
     }
-
     public TypeComparator getTypeComparator() {
         return context.getTypeComparator();
     }

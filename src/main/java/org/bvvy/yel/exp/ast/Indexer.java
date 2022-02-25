@@ -1,9 +1,10 @@
 package org.bvvy.yel.exp.ast;
 
-import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exception.YelEvalException;
 import org.bvvy.yel.exp.ExpressionState;
 import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.exp.ValueRef;
+import org.bvvy.yel.exp.YelMessage;
 import org.bvvy.yel.util.NumberUtils;
 
 import java.util.Collection;
@@ -27,7 +28,7 @@ public class Indexer extends NodeImpl {
         TypedValue indexValue;
         Object index;
         if (target == null) {
-            throw new YelEvaluationException();
+            throw new YelEvalException(getStartPosition(), YelMessage.CANNOT_INDEX_INTO_NULL_VALUE);
         }
 
         state.pushActiveContextObject(state.getRootContextObject());
@@ -49,7 +50,7 @@ public class Indexer extends NodeImpl {
                 return new CollectionIndexingValueRef((Collection<?>) target, idx);
             }
         }
-        return state.index(index);
+        throw new YelEvalException(YelMessage.NOT_ASSIGNABLE                                                                                                                                                                                                                                                                                                                                                 );
     }
 
     private class MapIndexingValueRef implements ValueRef {
@@ -105,7 +106,7 @@ public class Indexer extends NodeImpl {
 
     private void checkAccess(int length, int index) {
         if (index >= length) {
-            throw new YelEvaluationException();
+            throw new YelEvalException(getStartPosition(), YelMessage.ARRAY_INDEX_OUT_OF_BOUNDS, length, index);
         }
 
     }

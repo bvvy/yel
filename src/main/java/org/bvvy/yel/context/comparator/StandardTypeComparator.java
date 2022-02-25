@@ -1,6 +1,7 @@
 package org.bvvy.yel.context.comparator;
 
-import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exception.YelEvalException;
+import org.bvvy.yel.exp.YelMessage;
 import org.bvvy.yel.util.NumberUtils;
 
 import java.math.BigDecimal;
@@ -52,8 +53,8 @@ public class StandardTypeComparator implements TypeComparator {
                 return ((Comparable<Object>) left).compareTo(right);
             }
         } catch (Exception e) {
-            throw new YelEvaluationException();
+            throw new YelEvalException(e, YelMessage.NOT_COMPARABLE, left.getClass(), right.getClass());
         }
-        throw new YelEvaluationException();
+        throw new YelEvalException(YelMessage.NOT_COMPARABLE, left.getClass(), right.getClass());
     }
 }

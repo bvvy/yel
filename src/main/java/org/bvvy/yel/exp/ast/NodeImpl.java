@@ -1,10 +1,10 @@
 package org.bvvy.yel.exp.ast;
 
-import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exception.YelEvalException;
 import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
-import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.exp.ValueRef;
+import org.bvvy.yel.exp.YelMessage;
 import org.objectweb.asm.MethodVisitor;
 
 /**
@@ -49,7 +49,7 @@ public abstract class NodeImpl implements Node {
 
     @Override
     public ValueRef getValueRef(ExpressionState state) {
-        throw new YelEvaluationException();
+        throw new YelEvalException(getStartPosition(), YelMessage.NOT_ASSIGNABLE);
     }
 
     @Override

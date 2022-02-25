@@ -3,7 +3,8 @@ package org.bvvy.yel.context.method;
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.convert.MethodParameter;
 import org.bvvy.yel.convert.TypeDescriptor;
-import org.bvvy.yel.exception.YelEvaluationException;
+import org.bvvy.yel.exception.YelEvalException;
+import org.bvvy.yel.exp.YelMessage;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -86,7 +87,7 @@ public class ReflectiveMethodResolver implements MethodResolver {
             return new ReflectiveMethodExecutor(closeMatch);
         } else if (matchRequiringConversion != null) {
             if (multipleOptions) {
-                throw new YelEvaluationException();
+                throw new YelEvalException(YelMessage.MULTIPLE_POSSIBLE_METHODS, name);
             }
             return new ReflectiveMethodExecutor(matchRequiringConversion);
         } else {
