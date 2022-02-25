@@ -30,7 +30,7 @@ public abstract class Operator extends NodeImpl {
         Label elseTarget = new Label();
 
         mv.visitVarInsn(Opcodes.ALOAD, 2);
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/bvvy/yel/context/Context", "getTypeComparator", "()Lorg/bvvy/yel/context/comparator/TypeComparator;", false);
+        mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "org/bvvy/yel/context/Context", "getTypeComparator", "()Lorg/bvvy/yel/context/comparator/TypeComparator;", true);
         Node left = getLeftOperand();
         cf.enterCompilationScope();
         left.generateCode(mv, cf);

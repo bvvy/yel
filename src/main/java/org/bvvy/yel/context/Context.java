@@ -1,14 +1,11 @@
 package org.bvvy.yel.context;
 
-import org.bvvy.yel.context.accessor.MapAccessor;
 import org.bvvy.yel.context.accessor.PropertyAccessor;
-import org.bvvy.yel.context.accessor.ReflectivePropertyAccessor;
-import org.bvvy.yel.context.comparator.StandardTypeComparator;
 import org.bvvy.yel.context.comparator.TypeComparator;
-import org.bvvy.yel.context.method.*;
+import org.bvvy.yel.context.method.MethodResolver;
+import org.bvvy.yel.context.method.TypeConverter;
 import org.bvvy.yel.exp.TypedValue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface Context {
