@@ -34,7 +34,10 @@ public class OpPlus extends Operator {
                 }
                 return new TypedValue(operandOne);
             }
-            throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, this.getOperatorName() ,leftOp,null);
+            if (operandOne instanceof Operable) {
+                this.exitTypeDescriptor = "Lorg/bvvy/yel/exp/Operable";
+            }
+            throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, this.getOperatorName(), leftOp, null);
         }
         Object leftOperand = leftOp.getValueInternal(state).getValue();
         Object rightOperand = getRightOperand().getValueInternal(state).getValue();
@@ -70,7 +73,13 @@ public class OpPlus extends Operator {
             this.exitTypeDescriptor = "Ljava/lang/String";
             return new TypedValue((String) leftOperand + rightOperand);
         }
-        throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, this.getOperatorName() ,leftOp,null);
+        if (leftOperand instanceof Operable && rightOperand instanceof Operable) {
+            this.exitTypeDescriptor = "Lorg/bvvy/yel/exp/Operable";
+            Operable leftOperable = (Operable) leftOperand;
+            Operable rightOperable = (Operable) rightOperand;
+            return new TypedValue(leftOperable.add(rightOperable));
+        }
+        throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, this.getOperatorName(), leftOp, null);
     }
 
 
