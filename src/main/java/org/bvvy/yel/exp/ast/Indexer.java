@@ -50,7 +50,7 @@ public class Indexer extends NodeImpl {
                 return new CollectionIndexingValueRef((Collection<?>) target, idx);
             }
         }
-        throw new YelEvalException(YelMessage.NOT_ASSIGNABLE                                                                                                                                                                                                                                                                                                                                                 );
+        throw new YelEvalException(YelMessage.NOT_ASSIGNABLE);
     }
 
     private class MapIndexingValueRef implements ValueRef {

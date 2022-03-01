@@ -46,6 +46,9 @@ public abstract class NodeImpl implements Node {
         return endPos;
     }
 
+    public Node[] getChildren() {
+        return children;
+    }
 
     @Override
     public ValueRef getValueRef(ExpressionState state) {
