@@ -20,6 +20,10 @@ public class PropertyOrFieldReference extends NodeImpl {
         this.name = propertyOrFieldName;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public ValueRef getValueRef(ExpressionState state) {
         return new AccessorLValue(this, state.getActiveContextObject(), state.getContext());

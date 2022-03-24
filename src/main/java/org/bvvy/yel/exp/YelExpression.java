@@ -17,7 +17,7 @@ public class YelExpression implements Expression {
 
     private final Node ast;
 
-    private YelParserConfig configuration;
+    private final YelParserConfig configuration;
 
     private CompiledExpression compiledAst;
 
