@@ -6,6 +6,8 @@ import org.bvvy.yel.context.accessor.ReflectivePropertyAccessor;
 import org.bvvy.yel.context.comparator.StandardTypeComparator;
 import org.bvvy.yel.context.comparator.TypeComparator;
 import org.bvvy.yel.context.method.*;
+import org.bvvy.yel.context.overloader.DefaultOperatorOverloader;
+import org.bvvy.yel.context.overloader.OperatorOverloader;
 import org.bvvy.yel.exp.TypedValue;
 
 import java.util.ArrayList;
@@ -22,6 +24,8 @@ public class StandardContext implements Context {
     private List<MethodResolver> methodResolvers;
 
     private TypeConverter typeConverter;
+
+    private OperatorOverloader operatorOverloader;
 
     public StandardContext(Object rootObject) {
         this.rootObject = new TypedValue(rootObject);
@@ -81,5 +85,13 @@ public class StandardContext implements Context {
             this.typeConverter = new StandardTypeConverter();
         }
         return typeConverter;
+    }
+
+    @Override
+    public OperatorOverloader getOperatorOverloader() {
+        if (this.operatorOverloader == null) {
+            this.operatorOverloader = new DefaultOperatorOverloader();
+        }
+        return this.operatorOverloader;
     }
 }

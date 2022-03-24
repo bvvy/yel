@@ -1,6 +1,8 @@
 package org.bvvy.yel.exp.ast;
 
-import org.bvvy.yel.exp.*;
+import org.bvvy.yel.exp.CodeFlow;
+import org.bvvy.yel.exp.ExpressionState;
+import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.util.NumberUtils;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -50,13 +52,7 @@ public class OpDivide extends Operator {
                 return new TypedValue(leftNumber.doubleValue() / rightNumber.doubleValue());
             }
         }
-        if (leftOperand instanceof Operable && rightOperand instanceof Operable) {
-            this.exitTypeDescriptor = "Lorg/bvvy/yel/exp/Operable";
-            Operable leftOperable = (Operable) leftOperand;
-            Operable rightOperable = (Operable) rightOperand;
-            return new TypedValue(leftOperable.divide(rightOperable));
-        }
-        return state.operate(Operation.DIVIDE, leftOperand, rightOperand);
+        return new TypedValue(state.getOperatorOverloader().divide(leftOperand, rightOperand));
     }
 
     @Override

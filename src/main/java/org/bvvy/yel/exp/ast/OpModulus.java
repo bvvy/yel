@@ -2,7 +2,6 @@ package org.bvvy.yel.exp.ast;
 
 import org.bvvy.yel.exp.CodeFlow;
 import org.bvvy.yel.exp.ExpressionState;
-import org.bvvy.yel.exp.Operation;
 import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.util.NumberUtils;
 import org.objectweb.asm.MethodVisitor;
@@ -15,7 +14,7 @@ import java.math.BigInteger;
  * @author bvvy
  */
 public class OpModulus extends Operator {
-    public OpModulus(int startPos, int endPos, Node ... operand) {
+    public OpModulus(int startPos, int endPos, Node... operand) {
         super("%", startPos, endPos, operand);
     }
 
@@ -51,7 +50,7 @@ public class OpModulus extends Operator {
                 return new TypedValue(leftNumber.doubleValue() % rightNumber.doubleValue());
             }
         }
-        return state.operate(Operation.MODULES, leftOperand, rightOperand);
+        return new TypedValue(state.getOperatorOverloader().mod(leftOperand, rightOperand));
     }
 
     @Override

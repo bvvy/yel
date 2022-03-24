@@ -1,7 +1,8 @@
 package org.bvvy.yel.exp.ast;
 
-import org.bvvy.yel.exception.YelEvalException;
-import org.bvvy.yel.exp.*;
+import org.bvvy.yel.exp.CodeFlow;
+import org.bvvy.yel.exp.ExpressionState;
+import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.util.NumberUtils;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -34,10 +35,7 @@ public class OpPlus extends Operator {
                 }
                 return new TypedValue(operandOne);
             }
-            if (operandOne instanceof Operable) {
-                this.exitTypeDescriptor = "Lorg/bvvy/yel/exp/Operable";
-            }
-            throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, this.getOperatorName(), leftOp, null);
+            return new TypedValue(state.getOperatorOverloader().add(leftOp, null));
         }
         Object leftOperand = leftOp.getValueInternal(state).getValue();
         Object rightOperand = getRightOperand().getValueInternal(state).getValue();
@@ -68,18 +66,11 @@ public class OpPlus extends Operator {
             } else {
                 return new TypedValue(leftNumber.doubleValue() + rightNumber.doubleValue());
             }
-        }
-        if (leftOperand instanceof String && rightOperand instanceof String) {
+        } else if (leftOperand instanceof String && rightOperand instanceof String) {
             this.exitTypeDescriptor = "Ljava/lang/String";
             return new TypedValue((String) leftOperand + rightOperand);
         }
-        if (leftOperand instanceof Operable && rightOperand instanceof Operable) {
-            this.exitTypeDescriptor = "Lorg/bvvy/yel/exp/Operable";
-            Operable leftOperable = (Operable) leftOperand;
-            Operable rightOperable = (Operable) rightOperand;
-            return new TypedValue(leftOperable.add(rightOperable));
-        }
-        throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, this.getOperatorName(), leftOp, null);
+        return new TypedValue(state.getOperatorOverloader().add(leftOperand, rightOperand));
     }
 
 

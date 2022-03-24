@@ -1,6 +1,8 @@
 package org.bvvy.yel.exp.ast;
 
-import org.bvvy.yel.exp.*;
+import org.bvvy.yel.exp.CodeFlow;
+import org.bvvy.yel.exp.ExpressionState;
+import org.bvvy.yel.exp.TypedValue;
 import org.bvvy.yel.util.NumberUtils;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -44,12 +46,7 @@ public class OpMinus extends Operator {
                     return new TypedValue(-((Number) operand).doubleValue());
                 }
             }
-            if (operand instanceof Operable) {
-                this.exitTypeDescriptor = "Lorg/bvvy/yel/exp/Operable";
-                Operable operable = (Operable) operand;
-                return new TypedValue(operable.negate());
-            }
-            return state.operate(Operation.MINUS, leftOp, null);
+            return new TypedValue(state.getOperatorOverloader().minus(operand, null));
         }
         Object leftOperand = leftOp.getValueInternal(state).getValue();
         Object rightOperand = getRightOperand().getValueInternal(state).getValue();
@@ -80,15 +77,8 @@ public class OpMinus extends Operator {
             } else {
                 return new TypedValue(leftNumber.doubleValue() - rightNumber.doubleValue());
             }
-
         }
-        if (leftOperand instanceof Operable && rightOperand instanceof Operable) {
-            this.exitTypeDescriptor = "Lorg/bvvy/yel/exp/Operable";
-            Operable leftOperable = (Operable) leftOperand;
-            Operable rightOperable = (Operable) rightOperand;
-            return new TypedValue(leftOperable.subtract(rightOperable));
-        }
-        return state.operate(Operation.MINUS, leftOperand, rightOperand);
+        return new TypedValue(state.getOperatorOverloader().minus(leftOperand, rightOperand));
     }
 
 

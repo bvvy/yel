@@ -2,6 +2,7 @@ package org.bvvy.yel.exp;
 
 import org.bvvy.yel.context.Context;
 import org.bvvy.yel.context.comparator.TypeComparator;
+import org.bvvy.yel.context.overloader.OperatorOverloader;
 import org.bvvy.yel.exception.YelEvalException;
 
 import java.util.ArrayDeque;
@@ -48,12 +49,12 @@ public class ExpressionState {
         return rootObject;
     }
 
-    public TypedValue operate(Operation op, Object left,Object right)  {
-            String leftType = (left == null ? "null" : left.getClass().getName());
-            String rightType = (right == null? "null" : right.getClass().getName());
-            throw new YelEvalException(YelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES, op, leftType, rightType);
-    }
     public TypeComparator getTypeComparator() {
         return context.getTypeComparator();
     }
+
+    public OperatorOverloader getOperatorOverloader() {
+        return context.getOperatorOverloader();
+    }
+
 }
