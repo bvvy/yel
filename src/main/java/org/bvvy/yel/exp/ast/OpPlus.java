@@ -35,7 +35,11 @@ public class OpPlus extends Operator {
                 }
                 return new TypedValue(operandOne);
             }
-            return new TypedValue(state.getOperatorOverloader().add(leftOp, null));
+            Object result = state.getOperatorOverloader().add(leftOp, null);
+            if (result instanceof TypedValue) {
+                return ((TypedValue) result);
+            }
+            return new TypedValue(result);
         }
         Object leftOperand = leftOp.getValueInternal(state).getValue();
         Object rightOperand = getRightOperand().getValueInternal(state).getValue();
@@ -70,7 +74,11 @@ public class OpPlus extends Operator {
             this.exitTypeDescriptor = "Ljava/lang/String";
             return new TypedValue((String) leftOperand + rightOperand);
         }
-        return new TypedValue(state.getOperatorOverloader().add(leftOperand, rightOperand));
+        Object result = state.getOperatorOverloader().add(leftOperand, rightOperand);
+        if (result instanceof TypedValue) {
+            return ((TypedValue) result);
+        }
+        return new TypedValue(result);
     }
 
 

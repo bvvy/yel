@@ -50,7 +50,11 @@ public class OpModulus extends Operator {
                 return new TypedValue(leftNumber.doubleValue() % rightNumber.doubleValue());
             }
         }
-        return new TypedValue(state.getOperatorOverloader().mod(leftOperand, rightOperand));
+        Object result = state.getOperatorOverloader().mod(leftOperand, rightOperand);
+        if (result instanceof TypedValue) {
+            return ((TypedValue) result);
+        }
+        return new TypedValue(result);
     }
 
     @Override

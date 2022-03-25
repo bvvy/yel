@@ -36,6 +36,10 @@ public class YelExpression implements Expression {
         return getValue(new StandardContext());
     }
 
+    protected ExpressionState createExpressionState(Context context) {
+        return new ExpressionState(context);
+    }
+
     @Override
     public Object getValue(Context context) {
         CompiledExpression compiledAst = this.compiledAst;
@@ -46,7 +50,7 @@ public class YelExpression implements Expression {
                 throw new YelEvalException(e, YelMessage.EXCEPTION_RUNNING_COMPILED_EXPRESSION);
             }
         }
-        ExpressionState state = new ExpressionState(context);
+        ExpressionState state = createExpressionState(context);
         checkCompile();
         return ast.getValue(state);
     }

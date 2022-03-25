@@ -50,7 +50,11 @@ public class OpMultiply extends Operator {
                 return new TypedValue(leftNumber.doubleValue() * rightNumber.doubleValue());
             }
         }
-        return new TypedValue(state.getOperatorOverloader().multiply(leftOperand, rightOperand));
+        Object result = state.getOperatorOverloader().multiply(leftOperand, rightOperand);
+        if (result instanceof TypedValue) {
+            return ((TypedValue) result);
+        }
+        return new TypedValue(result);
     }
 
     @Override

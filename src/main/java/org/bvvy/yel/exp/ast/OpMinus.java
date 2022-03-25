@@ -46,7 +46,11 @@ public class OpMinus extends Operator {
                     return new TypedValue(-((Number) operand).doubleValue());
                 }
             }
-            return new TypedValue(state.getOperatorOverloader().minus(operand, null));
+            Object result = state.getOperatorOverloader().minus(operand, null);
+            if (result instanceof TypedValue) {
+                return ((TypedValue) result);
+            }
+            return new TypedValue(result);
         }
         Object leftOperand = leftOp.getValueInternal(state).getValue();
         Object rightOperand = getRightOperand().getValueInternal(state).getValue();
@@ -78,7 +82,11 @@ public class OpMinus extends Operator {
                 return new TypedValue(leftNumber.doubleValue() - rightNumber.doubleValue());
             }
         }
-        return new TypedValue(state.getOperatorOverloader().minus(leftOperand, rightOperand));
+        Object result = state.getOperatorOverloader().minus(leftOperand, rightOperand);
+        if (result instanceof TypedValue) {
+            return ((TypedValue) result);
+        }
+        return new TypedValue(result);
     }
 
 
