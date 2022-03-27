@@ -340,7 +340,7 @@ public class YelParser implements Parser {
         return null;
     }
 
-    private boolean maybeEatNullReference() {
+    protected boolean maybeEatNullReference() {
         if (peekToken(TokenKind.IDENTIFIER)) {
             Token nullToken = peekToken();
             if (!"null".equalsIgnoreCase(nullToken.stringValue())) {

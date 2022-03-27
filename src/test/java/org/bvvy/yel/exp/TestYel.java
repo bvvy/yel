@@ -39,6 +39,18 @@ public class TestYel {
     }
 
     @Test
+    public void testAddEnv() {
+        Yel yel = new Yel();
+        Map<String, Object> env = new HashMap<>();
+        env.put("a", 1);
+        env.put("b", 2);
+        Object result = yel.eval("a + b", env);
+        Assertions.assertEquals(result, 3);
+
+    }
+
+
+    @Test
     public void testSub() {
         Yel yel = new Yel();
         Object result = yel.eval("100 - 100");

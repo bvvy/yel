@@ -44,7 +44,7 @@ public class PropertyOrFieldReference extends NodeImpl {
         this.exitTypeDescriptor = descriptor;
     }
 
-    private TypedValue getValueInternal(TypedValue contextObject, Context context) {
+    protected TypedValue getValueInternal(TypedValue contextObject, Context context) {
         TypedValue result = readProperty(contextObject, context, this.name);
         return result;
     }

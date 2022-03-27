@@ -1,0 +1,28 @@
+= yel
+
+== 介绍
+
+表达式引擎,目前是配合它的衍生品Yet同步更新
+
+== 安装教程
+
+1.  测试还未完善,暂时不推荐使用
+
+== 使用说明
+
+[source, java]
+----
+public class TestYel {
+
+    @Test
+    public void testAddEnv() {
+        Yel yel = new Yel();
+        Map<String, Object> env = new HashMap<>();
+        env.put("a", 1);
+        env.put("b", 2);
+        Object result = yel.eval("a + b", env);
+        Assertions.assertEquals(result, 3);
+
+    }
+}
+----
